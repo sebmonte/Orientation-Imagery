@@ -13,7 +13,7 @@ import math
 from PIL import Image
 participant = 1
 run_file = 1
-ismeg = 0
+ismeg = 1
 isfull = 1
 iseyetracking = 0
 response_keys = ['1','2','3','4','q']
@@ -107,8 +107,7 @@ def drawFix(lines):
         i.draw()
         
         
-def drawISI(win, lines, photorect_black):
-    photorect_black.draw()
+def drawISI(win, lines):
     drawFix(lines)
     return win.flip()
     
@@ -328,7 +327,7 @@ while 1:
 
 rundata['Responses'] = response_list
 df = pd.DataFrame(response_list)
-rundata.to_csv(f'extracted_data{run_file}.csv', index=False)
+rundata.to_csv(f'extracted_data{participant}_{run_file}.csv', index=False)
 
 if iseyetracking:
     eyetracker.exit(el_tracker,et_fname,results_folder=f'{testStim}/results/')
