@@ -13,10 +13,10 @@ import math
 from PIL import Image
 participant = 1
 run_file = 1
-ismeg = 0
-isfull = 0
+ismeg = 1
+isfull = 1
 iseyetracking = 0
-islaptop = 1
+islaptop = 0
 response_keys = ['1','2','3','4','q']
 
 #setup libraries
@@ -286,7 +286,6 @@ for i in range(len(rundata['Code'].unique())):
 keys_pressed = 0
 for index, row in rundata.iterrows():
     #Send triggers if in MEG, draw stimulus for 1 frame
-    print(int(row['Code']))
     if ismeg:
         #win.callOnFlip(trigger, port = p_port, code=code)
         win.callOnFlip(p_port.setData, int(row['Code']))
@@ -295,6 +294,7 @@ for index, row in rundata.iterrows():
     stim_on = draw_stim(win, imageList[row['Code'] - 1], photorect_white, lines)
     timeon_list.append(stim_on) #ask lina
     #Draw the stimulus and check for responses
+    keys_pressed = 0
     for i in range(int(imFrames) - 1):
         last_flip = draw_stim(win, imageList[row['Code'] - 1], photorect_white, lines)
         if keys_pressed==0:
@@ -311,11 +311,12 @@ for index, row in rundata.iterrows():
     response_list.append(keys_pressed)
     if ismeg:
         trigger(port=p_port, code = 0)
-    # Draw break screen if '1' in trialmatrix
+       # Draw break screen if '1' in trialmatrix
     if row['Break']:
         draw_break(win, break_counter, break_freq, lines, fixationFrames, index, total_trials)
         break_counter += 1
 
+    print(response_list)
     #add time1 and time2 into trial output
 
 while 1:
