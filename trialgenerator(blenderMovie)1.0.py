@@ -3,8 +3,8 @@ import os
 import random
 import pandas as pd
 
-localTest = 1
-totalSheets = 1
+localTest = 0
+totalSheets = 2
 
 local_path = '/Users/montesinossl/desktop/BlenderExp/'
 
@@ -20,7 +20,8 @@ break_freq = 10 #How many trials before a break screen comes up
 jitter_amount = 0  # Specify the jitter amount
 
 # Define conditions and their unique integer codes
-conditions = ['test1', 'test2', 'test3', 'test4', 'test5']
+conditions = ['f_0', 'f_22', 'b_0', 'b_22']
+catchconditions = ['f_0catch', 'f_22catch', 'b_0catch', 'b_22catch']
 anticipated_length = int(num_runs*len(conditions) + (num_runs*len(conditions))*catch_percentage/100)
 anticipated_length = int(num_runs*len(conditions))
 
@@ -43,7 +44,7 @@ for sheet in range(1, totalSheets + 1):
         #Loop to create the section in the dataframe for each run
         for i, condition in enumerate(conditions):
             code = condition_codes[condition]
-            stimulus_filename = f'{condition}.png'
+            stimulus_filename = f'{condition}.mp4'
             stimulus_full_path = os.path.join(stimulus_path, f'Stimuli/{stimulus_filename}')
             currLength = ((run - 1) * len(conditions) + i + 1)
 
@@ -63,6 +64,8 @@ for sheet in range(1, totalSheets + 1):
     #Duplicate rows to create catch trials, add them after the original trial
     for i in range(num_rows_to_add):
         random_jitter = random.randint(-jitter_amount, jitter_amount)
+        catchconditions = catchconditions[:]
+        random.shuffle(catchconditions)
         # Calculate the index for the catch trial based on the current length of the dataframe
         original_index = int(len(df) * (i + 1) / (num_rows_to_add + 1)) + random_jitter
         # Ensure the index stays within the bounds of the dataframe
@@ -74,13 +77,13 @@ for sheet in range(1, totalSheets + 1):
         # Insert the catch trial
         duplicated_row = df.iloc[original_index].copy()
         duplicated_row['Catch'] = 1
-        duplicated_row['Condition'] = 'test1'
+        duplicated_row['Condition'] = catchconditions[0]
         df = pd.concat([df.iloc[:original_index + 1], duplicated_row.to_frame().T, df.iloc[original_index + 1:]]).reset_index(drop=True)
 
 
 
     # Specify the output Excel file
-    output_excel_file = os.path.join(local_path, f'megStimM{sheet}.xlsx')
+    output_excel_file = os.path.join(local_path, f'megStim_M{sheet}.xlsx')
     print(output_excel_file)
     # Write data to Excel file
     df.to_excel(output_excel_file, index=False)
