@@ -1,2 +1,2 @@
 # Orientation-Imagery
-Scripts for MEG project on face-orientation stills &amp; videos
+Scripts for an MEG project testing generalization from static to dynamic faces &amp; videos
