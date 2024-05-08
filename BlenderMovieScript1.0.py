@@ -285,6 +285,7 @@ for i in range(len(rundata['Code'].unique())):
 #Gclock = core.MonotonicClock()
 keys_pressed = 0
 for index, row in rundata.iterrows():
+    Movie = MovieList[row['Code'] - 1]
     #Send triggers if in MEG, draw stimulus for 1 frame
     #print(int(row['Code']))
     if ismeg:
@@ -297,7 +298,9 @@ for index, row in rundata.iterrows():
     #timeon_list.append(stim_on) #ask lina
     #Draw the stimulus and check for responses
     for i in range(int(imFrames) - 1):
-        last_flip = draw_stim(win, MovieList[row['Code'] - 1], photorect_white, lines)
+        #last_flip = draw_stim(win, MovieList[row['Code'] - 1], photorect_white, lines)
+        Movie.draw()
+        win.flip()
         #print(MovieList[row['Code'] - 1].getCurrentFrameNumber())
         if keys_pressed==0:
             keys_pressed = check_responses(response_keys)
