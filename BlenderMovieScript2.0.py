@@ -11,11 +11,10 @@ import sys
 from psychopy.hardware import keyboard
 import math
 from PIL import Image
-from psychopy.visual.movies import MovieStim
 participant = 1
 run_file = 1
-ismeg = 0
-isfull = 0
+ismeg = 1
+isfull = 1
 iseyetracking = 0
 islaptop = 0
 response_keys = ['1','2','3','4','q']
@@ -29,7 +28,7 @@ else:
     testStim = '/Users/meglab/EExperiments/Sebastian/BlenderPilot/'
 
 imDir = '/Users/montesinossl/Desktop/BlenderExp/Stimuli'
-rundata=data.importConditions(testStim + f'megStim_M{run_file}.xlsx')
+rundata=data.importConditions(testStim + f'megStim{run_file}.xlsx')
 rundata = pd.DataFrame(rundata)
 response_list = []
 timeon_list = []
@@ -177,9 +176,9 @@ else:
     frameDur = 1.0 / 60.0  # could not measure, so approximated
 
 if islaptop:
-    frameDur = 1/120.0
+    frameDur = 1/120
 
-imDuration = 3.39 # in seconds
+imDuration = .3 # in seconds
 imFrames = imDuration/frameDur
 print('imdur is', imFrames)
 fixDuration = .5 # seconds of blank screen in between stim
@@ -278,46 +277,34 @@ for i in range(int(fixationFrames + np.random.randint(0,5,1)[0])):
     photorect_black.draw()
     last_flip = win.flip()
 
-MovieList = []
-for i in range(len(rundata['Code'].unique())):
-    #MovieList.append(MovieStim(win, rundata.loc[rundata['Code']==i+1,'Stimulus'].to_list()[0], size=(stimHeight, stimWidth), units = 'pix', pos = (0, 20)))
-    MovieList.append(visual.MovieStim(
-        win,
-        filename=rundata.loc[rundata['Code']==i+1,'Stimulus'].to_list()[0],
-        movieLib='ffpyplayer',
-        loop=False, volume=1.0, noAudio=True,
-        pos=(0, 20), size=(stimHeight, stimWidth), units='pix',
-        ori=0.0, anchor='center',opacity=None, contrast=1.0,
-        depth=0
-    ))
+imageDict = {}
+for i in range(len(rundata['Condition'].unique())):
     
-stimulusClock = core.Clock()
+
+
+imageList = []
+for i in range(len(rundata['Code'].unique())):
+    imageList.append(visual.ImageStim(win, rundata.loc[rundata['Code']==i+1,'Stimulus'].to_list()[0], size=(stimHeight, stimWidth), units = 'pix', pos = (0, 20)))
+
+
 #Gclock = core.MonotonicClock()
 keys_pressed = 0
 for index, row in rundata.iterrows():
-    Movie = MovieList[row['Code'] - 1]
     #Send triggers if in MEG, draw stimulus for 1 frame
-    #print(int(row['Code']))
     if ismeg:
         #win.callOnFlip(trigger, port = p_port, code=code)
         win.callOnFlip(p_port.setData, int(row['Code']))
         if iseyetracking:
             eyetracker.send_message(el_tracker,row['Code'])
-    #stim_on = draw_stim(win, MovieList[row['Code'] - 1], photorect_white, lines)
-    #timeon_list.append(stim_on) #ask lina
+    stim_on = draw_stim(win, imageList[row['Code'] - 1], photorect_white, lines)
+    timeon_list.append(stim_on) #ask lina
     #Draw the stimulus and check for responses
-    stimulusClock.reset()
-    while stimulusClock.getTime() < 3.39:
-        Movie.draw()
-        win.flip()
-#    for i in range(int(imFrames) - 1):
-#        #last_flip = draw_stim(win, MovieList[row['Code'] - 1], photorect_white, lines)
-#        Movie.draw()
-#        win.flip()
-#        #print(MovieList[row['Code'] - 1].getCurrentFrameNumber())
-#        if keys_pressed==0:
-#            keys_pressed = check_responses(response_keys)
-    #print(last_flip - stim_on)
+    keys_pressed = 0
+    for i in range(int(imFrames) - 1):
+        last_flip = draw_stim(win, imageList[row['Code'] - 1], photorect_white, lines)
+        if keys_pressed==0:
+            keys_pressed = check_responses(response_keys)
+    print(last_flip - stim_on)
     #Turn off trigger once stimulus is off the screen
     if ismeg:
         win.callOnFlip(p_port.setData, int(0))
@@ -329,13 +316,12 @@ for index, row in rundata.iterrows():
     response_list.append(keys_pressed)
     if ismeg:
         trigger(port=p_port, code = 0)
-    # Draw break screen if '1' in trialmatrix
+       # Draw break screen if '1' in trialmatrix
     if row['Break']:
         draw_break(win, break_counter, break_freq, lines, fixationFrames, index, total_trials)
         break_counter += 1
-    for movie in MovieList:
-        movie.seek(0)
 
+    print(response_list)
     #add time1 and time2 into trial output
 
 while 1:
