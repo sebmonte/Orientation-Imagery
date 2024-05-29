@@ -13,8 +13,8 @@ import math
 from PIL import Image
 participant = 1
 run_file = 1
-ismeg = 1
-isfull = 1
+ismeg = 0
+isfull = 0
 iseyetracking = 0
 islaptop = 0
 response_keys = ['1','2','3','4','q']
@@ -28,7 +28,7 @@ else:
     testStim = '/Users/meglab/EExperiments/Sebastian/BlenderPilot/'
 
 imDir = '/Users/montesinossl/Desktop/BlenderExp/Stimuli'
-rundata=data.importConditions(testStim + f'megStim{run_file}.xlsx')
+rundata=data.importConditions(testStim + f'megStimMovie{run_file}.xlsx')
 rundata = pd.DataFrame(rundata)
 response_list = []
 timeon_list = []
@@ -154,6 +154,29 @@ def record_response(keys_pressed):
         
 def trigger(port,code):
     port.setData(int(code))
+
+def generate_image_list(start_frame, direction, win, num_frames=180):
+    images = []
+    if direction == 'Left':
+        step = -1
+    else:
+        step = 1
+    
+    current_frame = start_frame
+    for _ in range(num_frames):
+        images.append(possibleImages[current_frame - 1])
+        #images.append(visual.ImageStim(win, testStim + '/Stimuli/' f"frame_{current_frame:04d}.png", size=(stimHeight, stimWidth), units = 'pix', pos = (0, 20)))
+        current_frame += step
+        if current_frame > 360:
+            current_frame = 1
+        elif current_frame < 1:
+            current_frame = 360
+    return images
+
+def extract_number(filename):
+    # Assuming the number is between 'frame_' and '.jpg'
+    number_part = filename[len('frame_'):-len('.jpg')]
+    return int(number_part)
     
 
 #Photorect
@@ -178,7 +201,7 @@ else:
 if islaptop:
     frameDur = 1/120
 
-imDuration = .3 # in seconds
+imDuration = .1 # in seconds
 imFrames = imDuration/frameDur
 print('imdur is', imFrames)
 fixDuration = .5 # seconds of blank screen in between stim
@@ -238,6 +261,33 @@ break_counter = 0
 all_trials_completed = False
 
 
+filenames = []
+for filename in os.listdir(testStim + '/Stimuli/'):
+    if filename.startswith('frame_') and filename.endswith('.jpg'):
+        filenames.append(filename)
+
+
+filenames.sort(key=extract_number)
+
+
+possibleImages = []
+for filename in filenames:
+    file_path = os.path.join(testStim + '/Stimuli/', filename)  
+    possibleImages.append(visual.ImageStim(win, file_path, size=(stimHeight, stimWidth), units = 'pix', pos = (0, 20)))
+
+imageDict = {}
+for condition in rundata['Condition'].unique():
+    start_frame, direction = condition.split('_')
+    start_frame = int(start_frame)
+    print(start_frame)
+
+    # Generate the list of images
+    image_list = generate_image_list(start_frame, direction, win)
+
+    imageDict[condition] = image_list
+
+    # Print or store the image list
+    print(f"Condition: {condition}")
  
 if ismeg == 1:
     p_port = parallel.ParallelPort(address='0x0378')
@@ -277,15 +327,6 @@ for i in range(int(fixationFrames + np.random.randint(0,5,1)[0])):
     photorect_black.draw()
     last_flip = win.flip()
 
-imageDict = {}
-for i in range(len(rundata['Condition'].unique())):
-    
-
-
-imageList = []
-for i in range(len(rundata['Code'].unique())):
-    imageList.append(visual.ImageStim(win, rundata.loc[rundata['Code']==i+1,'Stimulus'].to_list()[0], size=(stimHeight, stimWidth), units = 'pix', pos = (0, 20)))
-
 
 #Gclock = core.MonotonicClock()
 keys_pressed = 0
@@ -296,12 +337,25 @@ for index, row in rundata.iterrows():
         win.callOnFlip(p_port.setData, int(row['Code']))
         if iseyetracking:
             eyetracker.send_message(el_tracker,row['Code'])
-    stim_on = draw_stim(win, imageList[row['Code'] - 1], photorect_white, lines)
+    stim_on = draw_stim(win, imageDict[row['Condition']][0], photorect_white, lines)
     timeon_list.append(stim_on) #ask lina
     #Draw the stimulus and check for responses
     keys_pressed = 0
-    for i in range(int(imFrames) - 1):
-        last_flip = draw_stim(win, imageList[row['Code'] - 1], photorect_white, lines)
+    for i in range(int(imFrames)):
+        draw_stim(win, imageDict[row['Condition']][0], photorect_white, lines)
+        if keys_pressed==0:
+            keys_pressed = check_responses(response_keys)
+    for i in range(1, 180):
+        draw_stim(win, imageDict[row['Condition']][i], photorect_white, lines)
+        if keys_pressed==0:
+            keys_pressed = check_responses(response_keys)
+    for i in range(int(imFrames)):
+        last_flip = draw_stim(win, imageDict[row['Condition']][179], photorect_white, lines)
+        if keys_pressed==0:
+            keys_pressed = check_responses(response_keys)
+    if row['Catch'] == 1:
+        for i in range(179, 139, -1):
+            draw_stim(win, imageDict[row['Condition']][i], photorect_white, lines)
         if keys_pressed==0:
             keys_pressed = check_responses(response_keys)
     print(last_flip - stim_on)
