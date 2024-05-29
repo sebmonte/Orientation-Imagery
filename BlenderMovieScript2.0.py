@@ -36,7 +36,7 @@ timeoff_list = []
 stimList = rundata['Stimulus']
 
 
-#WINDOW
+#Making the window
 if iseyetracking:
     import eyetracker 
     fname = f'{participant}S{str(run_file)}'
@@ -48,7 +48,7 @@ if iseyetracking:
 else:
     win = visual.Window(units="pix", fullscr=isfull, color=(-.5, -.5, -.5))
 
-# Wait for start key
+# Wait for start key, q to quit experiment
 while True:
     if event.getKeys(keyList=['space']):
         break
@@ -129,13 +129,14 @@ def check_responses(response_keys):
         return 0
 
             
-    
+#Draw the stimulus, fixation lines, and photorectoid  
 def draw_stim(win, stim, photorect_white, lines):
     stim.draw()
     photorect_white.draw()
     drawFix(lines)
     return win.flip()
 
+#Draw a break screen and display how far along in the experiment one is
 def draw_break(win, break_counter, break_freq, lines, fixationFrames, index, total_trials):
     way_done = int(((index + 1) / total_trials) * 100)
     break_text = responseScreen = visual.TextStim(win, text='You are ' + str(way_done) + '% done. Press any key to continue', pos=(0, 0), units = 'norm', height=0.07)
@@ -155,6 +156,7 @@ def record_response(keys_pressed):
 def trigger(port,code):
     port.setData(int(code))
 
+#This function is used to generate the list of images that will become the frames for the video
 def generate_image_list(start_frame, direction, win, num_frames=180):
     images = []
     if direction == 'Left':
@@ -165,7 +167,6 @@ def generate_image_list(start_frame, direction, win, num_frames=180):
     current_frame = start_frame
     for _ in range(num_frames):
         images.append(possibleImages[current_frame - 1])
-        #images.append(visual.ImageStim(win, testStim + '/Stimuli/' f"frame_{current_frame:04d}.png", size=(stimHeight, stimWidth), units = 'pix', pos = (0, 20)))
         current_frame += step
         if current_frame > 360:
             current_frame = 1
@@ -179,7 +180,7 @@ def extract_number(filename):
     return int(number_part)
     
 
-#Photorect
+#Defining text that is displayed and the photorectoid 
 photorect_white = visual.Rect(win=win,width = 2,height=2,fillColor='white',pos=(-win.size[0]/2,win.size[1]/2))
 photorect_black = visual.Rect(win=win,width = 2,height=2,fillColor='black',pos=(-win.size[0]/2,win.size[1]/2))
 localizationText = visual.TextStim(win,text = 'Localizing head position ... \n \n please remain still', units = 'norm', height = 0.07)
@@ -190,7 +191,7 @@ localizationTextEnd = visual.TextStim(win,text = 'You are done! Localizing head 
 
 win.mouseVisible = False
 
-#Defining Parameters and frames
+#Defining Parameters and getting the amount of frames for various experiment components
 expFrame = win.getActualFrameRate()
 print('framerate is', expFrame)
 if expFrame != None:
@@ -207,7 +208,7 @@ print('imdur is', imFrames)
 fixDuration = .5 # seconds of blank screen in between stim
 fixationFrames = fixDuration/frameDur
 
-
+#Info about the monitor
 scn_width = 1024 #in px
 scn_height = 768 #in px
 monitorwidth = 42
@@ -215,9 +216,9 @@ monitorheight = 30.5
 viewdist = 80
 dva = 15 #angle
 
-stimulus_path = testStim + '/Stimuli/frame_0001.png'  # Replace with the actual path to your image file
+#Define the aspect ratio and desired image size based on the image file
+stimulus_path = testStim + '/Stimuli/frame_0001.jpg'  
 stimulus = Image.open(stimulus_path)
-# Get the dimensions
 width, height = stimulus.size
 stimAspectRatio = height/width
 
@@ -229,14 +230,18 @@ dva_width_fixation = 0.2 #in terms of degrees of visual angle
 dva_length_fixation = 0.2 # in terms of degrees of visual angle
 dva_stim_height = 30
 
+#Function to convert degrees of visual angle to pixels on the screen
 def deg_to_pix(dva=1,view_dist=80,screen_width=42, win_size = [1024, 768]):
     size_cm = view_dist*np.tan(np.deg2rad(dva/2))*2
     pix_per_cm = win_size[0]/screen_width
     size_pix = size_cm*pix_per_cm
     return int(np.round(size_pix))
     
+
 px_width_fixation = deg_to_pix(dva_width_fixation,viewdist,monitorwidth) #for fixation
 px_length_fixation = deg_to_pix(dva_length_fixation,viewdist,monitorwidth) #for fixation
+
+#Make fixation cross
 outline_color_fixation = 'black'
 color_fixation = 'white'
 opacity = .5
@@ -250,10 +255,8 @@ stimWidth = deg_to_pix(width_degree,viewdist,monitorwidth) #531
 #stimWidth = int(np.round(stimHeight * stimAspectRatio)) #398
 
 
-#############################################################################
-####Experiment #####
-imOnset = []
-fixOnset = []
+
+#Calculating how often there should be a break screen
 break_prop = .1
 break_freq = int(len(rundata['Stimulus'])*break_prop)
 total_trials = int(len(rundata['Stimulus']))
@@ -261,34 +264,47 @@ break_counter = 0
 all_trials_completed = False
 
 
+######################################
+########LOADING IN IMAGE FILES########
+######################################
+
+#PCreate a sorted list of all the image frame files
 filenames = []
 for filename in os.listdir(testStim + '/Stimuli/'):
     if filename.startswith('frame_') and filename.endswith('.jpg'):
         filenames.append(filename)
-
-
 filenames.sort(key=extract_number)
 
 
+#Create a list of ordered psychopy imagestim files
 possibleImages = []
 for filename in filenames:
     file_path = os.path.join(testStim + '/Stimuli/', filename)  
     possibleImages.append(visual.ImageStim(win, file_path, size=(stimHeight, stimWidth), units = 'pix', pos = (0, 20)))
 
+
+#Now I need a dictionary where each entry is a condition and the list of the image frames I want to display for that condition
 imageDict = {}
 for condition in rundata['Condition'].unique():
     start_frame, direction = condition.split('_')
     start_frame = int(start_frame)
-    print(start_frame)
 
-    # Generate the list of images
+    #Function to generate the frames I want for each image condition based on the starting frame & direction of movie
     image_list = generate_image_list(start_frame, direction, win)
 
     imageDict[condition] = image_list
 
-    # Print or store the image list
+    # Check that all the conditions were made
     print(f"Condition: {condition}")
  
+
+######################################
+########EXPERIMENT####################
+######################################
+
+
+
+#Function to test MEG triggers and photorect channel
 if ismeg == 1:
     p_port = parallel.ParallelPort(address='0x0378')
 if ismeg == 1:
@@ -321,22 +337,23 @@ win.flip()
 introResp = event.waitKeys(keyList = None,timeStamped=True)
 
 
-
+#Draw fixation cross before image comes on the screen
 for i in range(int(fixationFrames + np.random.randint(0,5,1)[0])):
     drawFix(lines)
     photorect_black.draw()
     last_flip = win.flip()
 
 
-#Gclock = core.MonotonicClock()
+#Trial loop for experiment
 keys_pressed = 0
 for index, row in rundata.iterrows():
-    #Send triggers if in MEG, draw stimulus for 1 frame
+    #Send triggers if in MEG
     if ismeg:
         #win.callOnFlip(trigger, port = p_port, code=code)
         win.callOnFlip(p_port.setData, int(row['Code']))
         if iseyetracking:
             eyetracker.send_message(el_tracker,row['Code'])
+    #draw stimulus for 1 frame, get time image is first drawn
     stim_on = draw_stim(win, imageDict[row['Condition']][0], photorect_white, lines)
     timeon_list.append(stim_on) #ask lina
     #Draw the stimulus and check for responses
@@ -353,6 +370,7 @@ for index, row in rundata.iterrows():
         last_flip = draw_stim(win, imageDict[row['Condition']][179], photorect_white, lines)
         if keys_pressed==0:
             keys_pressed = check_responses(response_keys)
+    #If we are in a catch trial, start playing the movie backwards at the end
     if row['Catch'] == 1:
         for i in range(179, 139, -1):
             draw_stim(win, imageDict[row['Condition']][i], photorect_white, lines)
@@ -367,17 +385,20 @@ for index, row in rundata.iterrows():
         last_flip = drawISI(win, lines)
         if keys_pressed==0:
             keys_pressed = check_responses(response_keys)
+    #Record if they hit any buttons
     response_list.append(keys_pressed)
     if ismeg:
         trigger(port=p_port, code = 0)
-       # Draw break screen if '1' in trialmatrix
+    # Draw break screen if '1' in trialmatrix
     if row['Break']:
         draw_break(win, break_counter, break_freq, lines, fixationFrames, index, total_trials)
         break_counter += 1
 
-    print(response_list)
     #add time1 and time2 into trial output
+    print(response_list)
 
+
+#Localize head-text before ending
 while 1:
     localizationTextEnd.draw()
     win.flip()
@@ -385,10 +406,12 @@ while 1:
     if pressed:
         break
 
+#Record the data and save it in a csv
 rundata['Responses'] = response_list
 df = pd.DataFrame(response_list)
 rundata.to_csv(f'extracted_data{run_file}.csv', index=False)
 
+#exit the eyetracking
 if iseyetracking:
     eyetracker.exit(el_tracker,et_fname,results_folder=f'{testStim}/results/')
 
