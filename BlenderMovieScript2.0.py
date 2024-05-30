@@ -1,6 +1,6 @@
-#NPH, December 12, 2023
+#This is a script for an experiment that displays videos of a face rotating on its vertical axis
 
-#setup libraries
+#Setup Libraries
 from psychopy import visual, event, core, gui, data, logging, parallel
 import glob
 import numpy as np
@@ -11,8 +11,10 @@ import sys
 from psychopy.hardware import keyboard
 import math
 from PIL import Image
+
+#Initial parameters
 participant = 1
-run_file = 1
+run_file = 1 #change every run
 ismeg = 0
 isfull = 0
 iseyetracking = 0
@@ -21,18 +23,24 @@ response_keys = ['1','2','3','4','q']
 
 #setup libraries
 thisDir = os.getcwd() 
-# #PERSONAL COMPUTER:
+#Set the right path to my file directory
 if ismeg == 0:   
     testStim = '/Users/montesinossl/Desktop/BlenderExp/'
 else:
     testStim = '/Users/meglab/EExperiments/Sebastian/BlenderPilot/'
 
+#Directory where stimuli are located
 imDir = '/Users/montesinossl/Desktop/BlenderExp/Stimuli'
+
+#Import conditions file
 rundata=data.importConditions(testStim + f'megStimMovie{run_file}.xlsx')
 rundata = pd.DataFrame(rundata)
+
+#Initalize lists to fill up with responses & timing information
 response_list = []
 timeon_list = []
 timeoff_list = []
+timing_list = []
 stimList = rundata['Stimulus']
 
 
@@ -228,10 +236,9 @@ width_degree = dva*stimAspectRatio
 #stimAspectRatio = 0.75
 dva_width_fixation = 0.2 #in terms of degrees of visual angle
 dva_length_fixation = 0.2 # in terms of degrees of visual angle
-dva_stim_height = 30
 
 #Function to convert degrees of visual angle to pixels on the screen
-def deg_to_pix(dva=1,view_dist=80,screen_width=42, win_size = [1024, 768]):
+def deg_to_pix(dva=1,view_dist=78.5,screen_width=42, win_size = [1024, 768]):
     size_cm = view_dist*np.tan(np.deg2rad(dva/2))*2
     pix_per_cm = win_size[0]/screen_width
     size_pix = size_cm*pix_per_cm
@@ -370,6 +377,7 @@ for index, row in rundata.iterrows():
         last_flip = draw_stim(win, imageDict[row['Condition']][179], photorect_white, lines)
         if keys_pressed==0:
             keys_pressed = check_responses(response_keys)
+    timing_list.append(last_flip - stim_on)
     #If we are in a catch trial, start playing the movie backwards at the end
     if row['Catch'] == 1:
         for i in range(179, 139, -1):
