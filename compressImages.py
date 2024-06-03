@@ -20,7 +20,7 @@ def resize_images(folder_path, new_size, new_prefix='resized_'):
                 img_resized = img.resize(new_size, Image.ANTIALIAS)
                 
                 # Create a new file name
-                new_filename = new_prefix + filename
+                new_filename = filename
                 
                 # Save the resized image to the output folder
                 new_img_path = os.path.join(output_folder, new_filename)
@@ -30,6 +30,6 @@ def resize_images(folder_path, new_size, new_prefix='resized_'):
 
 # Example usage
 folder_path = '/Users/montesinossl/Desktop/BlenderExp/Stimuli/'  
-new_size = (1500, 1127)  # Specify the new size (width, height) in pixels
+new_size = (514, 384)  # Specify the new size (width, height) in pixels
 
 resize_images(folder_path, new_size)
