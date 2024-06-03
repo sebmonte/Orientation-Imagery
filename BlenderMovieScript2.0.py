@@ -416,7 +416,8 @@ while 1:
 
 #Record the data and save it in a csv
 rundata['Responses'] = response_list
-df = pd.DataFrame(response_list)
+rundata['Timing'] = timing_list
+df = pd.DataFrame(response_list, timing_list)
 rundata.to_csv(f'extracted_data{run_file}.csv', index=False)
 
 #exit the eyetracking
