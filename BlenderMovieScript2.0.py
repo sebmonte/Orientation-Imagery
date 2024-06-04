@@ -15,7 +15,7 @@ from PIL import Image
 #Initial parameters
 participant = 1
 run_file = 1 #change every run
-ismeg = 0
+ismeg = 1
 isfull = 0
 iseyetracking = 0
 islaptop = 0
@@ -24,13 +24,11 @@ response_keys = ['1','2','3','4','q']
 #setup libraries
 thisDir = os.getcwd() 
 #Set the right path to my file directory
-if ismeg == 0:   
+if ismeg == 0:
     testStim = '/Users/montesinossl/Desktop/BlenderExp/'
 else:
-    testStim = '/Users/meglab/EExperiments/Sebastian/BlenderPilot/'
+    testStim = '/Users/meglab/EExperiments/Sebastian/BlenderMoviePilot/'
 
-#Directory where stimuli are located
-imDir = '/Users/montesinossl/Desktop/BlenderExp/Stimuli'
 
 #Import conditions file
 rundata=data.importConditions(testStim + f'megStimMovie{run_file}.xlsx')
@@ -183,8 +181,8 @@ def generate_image_list(start_frame, direction, win, num_frames=180):
     return images
 
 def extract_number(filename):
-    # Assuming the number is between 'frame_' and '.jpg'
-    number_part = filename[len('frame_'):-len('.jpg')]
+    # Assuming the number is between 'frame_' and '.png'
+    number_part = filename[len('frame_'):-len('.png')]
     return int(number_part)
     
 
@@ -210,7 +208,7 @@ else:
 if islaptop:
     frameDur = 1/120
 
-imDuration = .1 # in seconds
+imDuration = .05 # in seconds
 imFrames = imDuration/frameDur
 print('imdur is', imFrames)
 fixDuration = .5 # seconds of blank screen in between stim
@@ -225,7 +223,7 @@ viewdist = 80
 dva = 15 #angle
 
 #Define the aspect ratio and desired image size based on the image file
-stimulus_path = testStim + '/Stimuli/frame_0001.jpg'  
+stimulus_path = testStim + '/Stimuli/frame_0001.png'  
 stimulus = Image.open(stimulus_path)
 width, height = stimulus.size
 stimAspectRatio = height/width
@@ -278,7 +276,7 @@ all_trials_completed = False
 #PCreate a sorted list of all the image frame files
 filenames = []
 for filename in os.listdir(testStim + '/Stimuli/'):
-    if filename.startswith('frame_') and filename.endswith('.jpg'):
+    if filename.startswith('frame_') and filename.endswith('.png'):
         filenames.append(filename)
 filenames.sort(key=extract_number)
 
@@ -287,7 +285,7 @@ filenames.sort(key=extract_number)
 possibleImages = []
 for filename in filenames:
     file_path = os.path.join(testStim + '/Stimuli/', filename)  
-    possibleImages.append(visual.ImageStim(win, file_path, size=(stimHeight, stimWidth), units = 'pix', pos = (0, 20)))
+    possibleImages.append(visual.ImageStim(win, file_path, units = 'pix', pos = (0, 20)))
 
 
 #Now I need a dictionary where each entry is a condition and the list of the image frames I want to display for that condition
@@ -354,6 +352,7 @@ for i in range(int(fixationFrames + np.random.randint(0,5,1)[0])):
 #Trial loop for experiment
 keys_pressed = 0
 for index, row in rundata.iterrows():
+    print(row['Condition'])
     #Send triggers if in MEG
     if ismeg:
         #win.callOnFlip(trigger, port = p_port, code=code)

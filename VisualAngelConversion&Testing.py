@@ -11,23 +11,23 @@ scn_height = 768 #in px
 monitorwidth = 42
 monitorheight = 30.5 
 viewdist = 80
-dva = 5 #angle
-ismeg = 0
-isFull = 0
+dva = 15 #angle
+ismeg = 1
+isFull = 1
 
 if ismeg == 0:   
     testStim = '/Users/montesinossl/Desktop/BlenderExp/'
 else:
-    testStim = '/Users/meglab/EExperiments/Sebastian/BlenderPilot/'
+    testStim = '/Users/meglab/EExperiments/Sebastian/BlenderMoviePilot'
 
 #Define the aspect ratio and desired image size based on the image file
-stimulus_path = testStim + '/Stimuli/frame_0001.jpg'  
+stimulus_path = testStim + '/Stimuli/frame_0001.png'  
 stimulus = Image.open(stimulus_path)
 width, height = stimulus.size
 stimAspectRatio = height/width
 
-dva_height = dva
-dva_width = dva*stimAspectRatio
+dva_width = dva
+dva_height = dva*stimAspectRatio
 
 
 #Function to convert degrees of visual angle to pixels on the screen
@@ -51,4 +51,11 @@ testSquare = visual.Rect(win, height = height, width = width, units = 'pix', fil
 testSquare.draw()
 win.flip()
 event.waitKeys()
+
+testImage = visual.ImageStim(win, stimulus_path, units = 'pix')
+testImage.draw()
+win.flip()
+event.waitKeys()
+
+
 win.close()
