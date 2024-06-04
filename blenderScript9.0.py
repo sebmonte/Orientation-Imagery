@@ -11,8 +11,8 @@ import sys
 from psychopy.hardware import keyboard
 import math
 from PIL import Image
-participant = 1
-run_file = 1
+participant = 2
+run_file = 4
 ismeg = 1
 isfull = 1
 iseyetracking = 0
