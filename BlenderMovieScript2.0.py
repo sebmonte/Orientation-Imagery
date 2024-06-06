@@ -191,7 +191,7 @@ photorect_white = visual.Rect(win=win,width = 2,height=2,fillColor='white',pos=(
 photorect_black = visual.Rect(win=win,width = 2,height=2,fillColor='black',pos=(-win.size[0]/2,win.size[1]/2))
 localizationText = visual.TextStim(win,text = 'Localizing head position ... \n \n please remain still', units = 'norm', height = 0.07)
 trigger_check_text = visual.TextStim(win, text='checking triggers... (press "c" to continue)',units = 'norm', height = 0.07)
-introScreen = visual.TextStim(win, text = 'Reminder: In this experiment, you will see a fixation point followed by an image of a face. Press a button if any two face-orientations appear in a row. Press any button to begin',pos=(0.0, 0.0), units = 'norm', height = 0.07)
+introScreen = visual.TextStim(win, text = 'Reminder: In this experiment, you will see a fixation point followed by an movie of a face. Press a button if the face begins rotating back the way it came. Press any button to begin',pos=(0.0, 0.0), units = 'norm', height = 0.07)
 responseScreen = visual.TextStim(win, text='Please press any key to continue.', pos=(0, 0), units = 'norm', height = 0.07)
 localizationTextEnd = visual.TextStim(win,text = 'You are done! Localizing head position ... \n \n please remain still', units = 'norm', height = 0.07)
 

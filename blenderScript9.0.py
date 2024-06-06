@@ -13,7 +13,7 @@ import math
 from PIL import Image
 participant = 2
 run_file = 4
-ismeg = 1
+ismeg = 0
 isfull = 1
 iseyetracking = 0
 islaptop = 0
@@ -328,7 +328,7 @@ while 1:
 
 rundata['Responses'] = response_list
 df = pd.DataFrame(response_list)
-rundata.to_csv(f'extracted_data{run_file}.csv', index=False)
+rundata.to_csv(f'extracted_dataStill{participant}{run_file}.csv', index=False)
 
 if iseyetracking:
     eyetracker.exit(el_tracker,et_fname,results_folder=f'{testStim}/results/')

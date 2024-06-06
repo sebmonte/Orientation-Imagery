@@ -13,7 +13,7 @@ if localTest == 1:
 else:
     stimulus_path = 'C:/Users/meglab/EExperiments/Sebastian/BlenderPilot/'
 # Set your variables
-num_runs = 7  # Specify the number of runs
+num_runs = 6  # Specify the number of runs
 
 catch_percentage = 15  # Specify the percentage of rows to duplicate
 break_freq = 10 #How many trials before a break screen comes up
@@ -77,6 +77,7 @@ for sheet in range(1, totalSheets + 1):
         duplicated_row = df.iloc[original_index].copy()
         duplicated_row['Catch'] = 1
         duplicated_row['Condition'] = random.choice(conditions)
+        duplicated_row['Code'] = 17
         df = pd.concat([df.iloc[:original_index + 1], duplicated_row.to_frame().T, df.iloc[original_index + 1:]]).reset_index(drop=True)
 
 
