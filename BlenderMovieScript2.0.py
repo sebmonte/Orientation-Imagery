@@ -20,6 +20,9 @@ isfull = 0
 iseyetracking = 0
 islaptop = 0
 response_keys = ['1','2','3','4','q']
+length = 0 #if 0, 180 frame movies, if 1, 90 frame movies (twice as fast)
+generationMethod = 0 #If 0, movies labeled 'right' go numerically up, 'left' goes numerically down in frames
+#if 1, movies go left/right based on head position as you look intuitively
 
 #setup libraries
 thisDir = os.getcwd() 
@@ -164,15 +167,21 @@ def trigger(port,code):
 
 #This function is used to generate the list of images that will become the frames for the video
 def generate_image_list(start_frame, direction, win, step, num_frames=180): 
-    if direction == 'Left':
-        if (start_frame > 270 or start_frame < 90):
+    if generationMethod == 1:
+        if direction == 'Left':
+            if (start_frame > 270 or start_frame < 90):
+                step = -step
+            elif (start_frame >= 90 and start_frame <= 270):
+                step = step
+        elif direction == 'Right':
+            if (start_frame < 270 and start_frame > 90):
+                step = -step
+            elif (start_frame <= 90 or start_frame >= 270):
+                step = step
+    else:
+        if direction =='Left':
             step = -step
-        elif (start_frame >= 90 and start_frame <= 270):
-            step = step
-    elif direction == 'Right':
-        if (start_frame < 270 and start_frame > 90):
-            step = -step
-        elif (start_frame <= 90 or start_frame >= 270):
+        else:
             step = step
 
 
@@ -294,7 +303,14 @@ for filename in filenames:
     file_path = os.path.join(testStim + '/Stimuli/resized/', filename)  
     possibleImages.append(visual.ImageStim(win, file_path, units = 'pix', pos = (0, 20)))
 
-
+if length == 0:
+    movieLength = [180, 179, 139]
+    step = 1
+    frames = 180
+else:
+    movieLength = [90, 89, 69]
+    step = 2
+    frames = 90
 #Now I need a dictionary where each entry is a condition and the list of the image frames I want to display for that condition
 imageDict = {}
 for condition in rundata['Condition'].unique():
@@ -302,7 +318,7 @@ for condition in rundata['Condition'].unique():
     start_frame = int(start_frame)
 
     #Function to generate the frames I want for each image condition based on the starting frame & direction of movie
-    image_list = generate_image_list(start_frame, direction, win, 2, 90)
+    image_list = generate_image_list(start_frame, direction, win, step, frames)
 
     imageDict[condition] = image_list
 
@@ -356,9 +372,20 @@ for i in range(int(fixationFrames + np.random.randint(0,5,1)[0])):
     last_flip = win.flip()
 
 
+''' Look at each movie to test the display if needed
+testList = rundata['Condition'].unique()
+# Function to extract the numerical part and convert it to an integer
+def extract_frame_number(frame):
+    return int(frame.split('_')[0])
 
-normalLength = [180, 179, 139]
-halfLength = [90, 89, 69]
+# Sort the list using the extract_frame_number function as the key
+sorted_frames = sorted(testList, key=extract_frame_number)
+
+for i in sorted_frames:
+    draw_stim(win, imageDict[i][0], photorect_white, lines)
+    event.waitKeys()
+
+'''
 
 #Trial loop for experiment
 keys_pressed = 0
@@ -379,18 +406,18 @@ for index, row in rundata.iterrows():
         draw_stim(win, imageDict[row['Condition']][0], photorect_white, lines)
         if keys_pressed==0:
             keys_pressed = check_responses(response_keys)
-    for i in range(1, halfLength[0]):
+    for i in range(1, movieLength[0]):
         draw_stim(win, imageDict[row['Condition']][i], photorect_white, lines)
         if keys_pressed==0:
             keys_pressed = check_responses(response_keys)
     for i in range(int(imFrames)):
-        last_flip = draw_stim(win, imageDict[row['Condition']][halfLength[1]], photorect_white, lines)
+        last_flip = draw_stim(win, imageDict[row['Condition']][movieLength[1]], photorect_white, lines)
         if keys_pressed==0:
             keys_pressed = check_responses(response_keys)
     timing_list.append(last_flip - stim_on)
     #If we are in a catch trial, start playing the movie backwards at the end
     if row['Catch'] == 1:
-        for i in range(halfLength[1], halfLength[2], -1):
+        for i in range(movieLength[1], movieLength[2], -1):
             draw_stim(win, imageDict[row['Condition']][i], photorect_white, lines)
         if keys_pressed==0:
             keys_pressed = check_responses(response_keys)
@@ -405,7 +432,6 @@ for index, row in rundata.iterrows():
             keys_pressed = check_responses(response_keys)
     #Record if they hit any buttons
     response_list.append(keys_pressed)
-    event.waitKeys()
     if ismeg:
         trigger(port=p_port, code = 0)
     # Draw break screen if '1' in trialmatrix
