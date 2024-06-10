@@ -15,7 +15,7 @@ from PIL import Image
 #Initial parameters
 participant = 1
 run_file = 1 #change every run
-ismeg = 1
+ismeg = 0
 isfull = 0
 iseyetracking = 0
 islaptop = 0
@@ -163,13 +163,20 @@ def trigger(port,code):
     port.setData(int(code))
 
 #This function is used to generate the list of images that will become the frames for the video
-def generate_image_list(start_frame, direction, win, num_frames=180):
-    images = []
+def generate_image_list(start_frame, direction, win, step, num_frames=180): 
     if direction == 'Left':
-        step = -1
-    else:
-        step = 1
-    
+        if (start_frame > 270 or start_frame < 90):
+            step = -step
+        elif (start_frame >= 90 and start_frame <= 270):
+            step = step
+    elif direction == 'Right':
+        if (start_frame < 270 and start_frame > 90):
+            step = -step
+        elif (start_frame <= 90 or start_frame >= 270):
+            step = step
+
+
+    images = []
     current_frame = start_frame
     for _ in range(num_frames):
         images.append(possibleImages[current_frame - 1])
@@ -275,7 +282,7 @@ all_trials_completed = False
 
 #PCreate a sorted list of all the image frame files
 filenames = []
-for filename in os.listdir(testStim + '/Stimuli/'):
+for filename in os.listdir(testStim + '/Stimuli/resized/'):
     if filename.startswith('frame_') and filename.endswith('.png'):
         filenames.append(filename)
 filenames.sort(key=extract_number)
@@ -284,7 +291,7 @@ filenames.sort(key=extract_number)
 #Create a list of ordered psychopy imagestim files
 possibleImages = []
 for filename in filenames:
-    file_path = os.path.join(testStim + '/Stimuli/', filename)  
+    file_path = os.path.join(testStim + '/Stimuli/resized/', filename)  
     possibleImages.append(visual.ImageStim(win, file_path, units = 'pix', pos = (0, 20)))
 
 
@@ -295,7 +302,7 @@ for condition in rundata['Condition'].unique():
     start_frame = int(start_frame)
 
     #Function to generate the frames I want for each image condition based on the starting frame & direction of movie
-    image_list = generate_image_list(start_frame, direction, win)
+    image_list = generate_image_list(start_frame, direction, win, 2, 90)
 
     imageDict[condition] = image_list
 
@@ -349,6 +356,10 @@ for i in range(int(fixationFrames + np.random.randint(0,5,1)[0])):
     last_flip = win.flip()
 
 
+
+normalLength = [180, 179, 139]
+halfLength = [90, 89, 69]
+
 #Trial loop for experiment
 keys_pressed = 0
 for index, row in rundata.iterrows():
@@ -368,18 +379,18 @@ for index, row in rundata.iterrows():
         draw_stim(win, imageDict[row['Condition']][0], photorect_white, lines)
         if keys_pressed==0:
             keys_pressed = check_responses(response_keys)
-    for i in range(1, 180):
+    for i in range(1, halfLength[0]):
         draw_stim(win, imageDict[row['Condition']][i], photorect_white, lines)
         if keys_pressed==0:
             keys_pressed = check_responses(response_keys)
     for i in range(int(imFrames)):
-        last_flip = draw_stim(win, imageDict[row['Condition']][179], photorect_white, lines)
+        last_flip = draw_stim(win, imageDict[row['Condition']][halfLength[1]], photorect_white, lines)
         if keys_pressed==0:
             keys_pressed = check_responses(response_keys)
     timing_list.append(last_flip - stim_on)
     #If we are in a catch trial, start playing the movie backwards at the end
     if row['Catch'] == 1:
-        for i in range(179, 139, -1):
+        for i in range(halfLength[1], halfLength[2], -1):
             draw_stim(win, imageDict[row['Condition']][i], photorect_white, lines)
         if keys_pressed==0:
             keys_pressed = check_responses(response_keys)
@@ -394,6 +405,7 @@ for index, row in rundata.iterrows():
             keys_pressed = check_responses(response_keys)
     #Record if they hit any buttons
     response_list.append(keys_pressed)
+    event.waitKeys()
     if ismeg:
         trigger(port=p_port, code = 0)
     # Draw break screen if '1' in trialmatrix
@@ -417,7 +429,7 @@ while 1:
 rundata['Responses'] = response_list
 rundata['Timing'] = timing_list
 df = pd.DataFrame(response_list, timing_list)
-rundata.to_csv(f'extracted_data{run_file}.csv', index=False)
+rundata.to_csv(f'extracted_dataMovie{participant}{run_file}.csv', index=False)
 
 #exit the eyetracking
 if iseyetracking:
