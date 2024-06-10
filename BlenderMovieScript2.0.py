@@ -372,7 +372,7 @@ for i in range(int(fixationFrames + np.random.randint(0,5,1)[0])):
     last_flip = win.flip()
 
 
-''' Look at each movie to test the display if needed
+'''Look at each movie to test the display if needed
 testList = rundata['Condition'].unique()
 # Function to extract the numerical part and convert it to an integer
 def extract_frame_number(frame):
@@ -382,9 +382,9 @@ def extract_frame_number(frame):
 sorted_frames = sorted(testList, key=extract_frame_number)
 
 for i in sorted_frames:
-    draw_stim(win, imageDict[i][0], photorect_white, lines)
+    for p in range(movieLength[0]):
+        draw_stim(win, imageDict[i][p], photorect_white, lines)
     event.waitKeys()
-
 '''
 
 #Trial loop for experiment
