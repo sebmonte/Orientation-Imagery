@@ -3,7 +3,7 @@ import os
 import random
 import pandas as pd
 
-localTest = 1
+localTest = 0
 totalSheets = 6
 
 local_path = '/Users/montesinossl/desktop/BlenderExp/'
@@ -13,7 +13,7 @@ if localTest == 1:
 else:
     stimulus_path = 'C:/Users/meglab/EExperiments/Sebastian/BlenderPilot/'
 # Set your variables
-num_runs = 6  # Specify the number of runs
+num_runs = 11  # Specify the number of runs
 
 catch_percentage = 15  # Specify the percentage of rows to duplicate
 break_freq = 10 #How many trials before a break screen comes up

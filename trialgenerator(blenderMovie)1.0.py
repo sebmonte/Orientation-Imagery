@@ -3,8 +3,8 @@ import os
 import random
 import pandas as pd
 
-localTest = 1
-totalSheets = 1
+localTest = 0
+totalSheets = 6
 
 local_path = '/Users/montesinossl/desktop/BlenderExp/'
 
@@ -83,7 +83,7 @@ for sheet in range(1, totalSheets + 1):
 
 
     # Specify the output Excel file
-    output_excel_file = os.path.join(local_path, f'megStim_M{sheet}.xlsx')
+    output_excel_file = os.path.join(local_path, f'megStim_Movie{sheet}.xlsx')
     print(output_excel_file)
     # Write data to Excel file
     df.to_excel(output_excel_file, index=False)
