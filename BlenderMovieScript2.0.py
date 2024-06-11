@@ -13,10 +13,10 @@ import math
 from PIL import Image
 
 #Initial parameters
-participant = 1
-run_file = 1 #change every run
-ismeg = 0
-isfull = 0
+participant = 3
+run_file = 4 #change every run
+ismeg = 1
+isfull = 1
 iseyetracking = 0
 islaptop = 0
 response_keys = ['1','2','3','4','q']
@@ -291,7 +291,7 @@ all_trials_completed = False
 
 #PCreate a sorted list of all the image frame files
 filenames = []
-for filename in os.listdir(testStim + '/Stimuli/resized/'):
+for filename in os.listdir(testStim + 'Stimuli/'):
     if filename.startswith('frame_') and filename.endswith('.png'):
         filenames.append(filename)
 filenames.sort(key=extract_number)
@@ -300,7 +300,7 @@ filenames.sort(key=extract_number)
 #Create a list of ordered psychopy imagestim files
 possibleImages = []
 for filename in filenames:
-    file_path = os.path.join(testStim + '/Stimuli/resized/', filename)  
+    file_path = os.path.join(testStim + 'Stimuli/', filename)  
     possibleImages.append(visual.ImageStim(win, file_path, units = 'pix', pos = (0, 20)))
 
 if length == 0:
