@@ -3,8 +3,8 @@ import os
 import random
 import pandas as pd
 
-localTest = 1
-totalSheets = 6
+localTest = 0
+totalSheets = 1
 
 local_path = '/Users/montesinossl/desktop/BlenderExp/'
 
@@ -13,10 +13,10 @@ if localTest == 1:
 else:
     stimulus_path = 'C:/Users/meglab/EExperiments/Sebastian/BlenderPilot/'
 # Set your variables
-num_runs = 20  # Specify the number of runs
+num_runs = 10  # Specify the number of runs
 
 catch_percentage = 15  # Specify the percentage of rows to duplicate
-break_freq = 10 #How many trials before a break screen comes up
+break_freq = 25 #How many trials before a break screen comes up
 jitter_amount = 0  # Specify the jitter amount
 
 # Define conditions and their unique integer codes
@@ -74,6 +74,7 @@ for sheet in range(1, totalSheets + 1):
         # Insert the catch trial
         duplicated_row = df.iloc[original_index].copy()
         duplicated_row['Catch'] = 1
+        duplicated_row['Code'] = 9
         df = pd.concat([df.iloc[:original_index + 1], duplicated_row.to_frame().T, df.iloc[original_index + 1:]]).reset_index(drop=True)
 
 

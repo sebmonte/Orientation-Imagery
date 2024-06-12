@@ -77,6 +77,7 @@ for sheet in range(1, totalSheets + 1):
         duplicated_row = df.iloc[original_index].copy()
         duplicated_row['Catch'] = 1
         duplicated_row['Condition'] = random.choice(conditions)
+        duplicated_row['Code'] = 17
         df = pd.concat([df.iloc[:original_index + 1], duplicated_row.to_frame().T, df.iloc[original_index + 1:]]).reset_index(drop=True)
 
 

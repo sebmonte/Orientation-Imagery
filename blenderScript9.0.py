@@ -11,7 +11,7 @@ import sys
 from psychopy.hardware import keyboard
 import math
 from PIL import Image
-participant = 2
+participant = 3
 run_file = 4
 ismeg = 1
 isfull = 1
@@ -299,7 +299,7 @@ for index, row in rundata.iterrows():
         last_flip = draw_stim(win, imageList[row['Code'] - 1], photorect_white, lines)
         if keys_pressed==0:
             keys_pressed = check_responses(response_keys)
-    print(last_flip - stim_on)
+    #print(last_flip - stim_on)
     #Turn off trigger once stimulus is off the screen
     if ismeg:
         win.callOnFlip(p_port.setData, int(0))
@@ -316,7 +316,7 @@ for index, row in rundata.iterrows():
         draw_break(win, break_counter, break_freq, lines, fixationFrames, index, total_trials)
         break_counter += 1
 
-    print(response_list)
+    #print(response_list)
     #add time1 and time2 into trial output
 
 while 1:
@@ -328,7 +328,7 @@ while 1:
 
 rundata['Responses'] = response_list
 df = pd.DataFrame(response_list)
-rundata.to_csv(f'extracted_data{run_file}.csv', index=False)
+rundata.to_csv(f'extracted_dataStill{participant}{run_file}.csv', index=False)
 
 if iseyetracking:
     eyetracker.exit(el_tracker,et_fname,results_folder=f'{testStim}/results/')
