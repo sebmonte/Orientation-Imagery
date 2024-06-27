@@ -13,10 +13,10 @@ import math
 from PIL import Image
 
 #Initial parameters
-participant = 3
-run_file = 4 #change every run
-ismeg = 1
-isfull = 1
+participant = 1
+run_file = 1 #change every run
+ismeg = 0
+isfull = 0
 iseyetracking = 0
 islaptop = 0
 response_keys = ['1','2','3','4','q']
@@ -291,7 +291,7 @@ all_trials_completed = False
 
 #PCreate a sorted list of all the image frame files
 filenames = []
-for filename in os.listdir(testStim + 'Stimuli/'):
+for filename in os.listdir(testStim + 'Stimuli/resized/'):
     if filename.startswith('frame_') and filename.endswith('.png'):
         filenames.append(filename)
 filenames.sort(key=extract_number)
@@ -300,7 +300,7 @@ filenames.sort(key=extract_number)
 #Create a list of ordered psychopy imagestim files
 possibleImages = []
 for filename in filenames:
-    file_path = os.path.join(testStim + 'Stimuli/', filename)  
+    file_path = os.path.join(testStim + 'Stimuli/resized/', filename)  
     possibleImages.append(visual.ImageStim(win, file_path, units = 'pix', pos = (0, 20)))
 
 if length == 0:
@@ -398,22 +398,17 @@ for index, row in rundata.iterrows():
         if iseyetracking:
             eyetracker.send_message(el_tracker,row['Code'])
     #draw stimulus for 1 frame, get time image is first drawn
+    keys_pressed = 0
     stim_on = draw_stim(win, imageDict[row['Condition']][0], photorect_white, lines)
     timeon_list.append(stim_on) #ask lina
     #Draw the stimulus and check for responses
-    keys_pressed = 0
     for i in range(int(imFrames)):
         draw_stim(win, imageDict[row['Condition']][0], photorect_white, lines)
-        if keys_pressed==0:
-            keys_pressed = check_responses(response_keys)
     for i in range(1, movieLength[0]):
+        print(i)
         draw_stim(win, imageDict[row['Condition']][i], photorect_white, lines)
-        if keys_pressed==0:
-            keys_pressed = check_responses(response_keys)
     for i in range(int(imFrames)):
         last_flip = draw_stim(win, imageDict[row['Condition']][movieLength[1]], photorect_white, lines)
-        if keys_pressed==0:
-            keys_pressed = check_responses(response_keys)
     timing_list.append(last_flip - stim_on)
     #If we are in a catch trial, start playing the movie backwards at the end
     if row['Catch'] == 1:
