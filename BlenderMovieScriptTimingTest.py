@@ -387,6 +387,21 @@ for i in sorted_frames:
     event.waitKeys()
 '''
 
+testList = rundata['Condition'].unique()
+# Function to extract the numerical part and convert it to an integer
+def extract_frame_number(frame):
+    return int(frame.split('_')[0])
+
+# Sort the list using the extract_frame_number function as the key
+sorted_frames = sorted(testList, key=extract_frame_number)
+
+for i in sorted_frames:
+    print(i)
+    for p in range(movieLength[0]):
+        draw_stim(win, imageDict[i][p], photorect_white, lines)
+    event.waitKeys()
+
+print(imFrames)
 #Trial loop for experiment
 keys_pressed = 0
 for index, row in rundata.iterrows():
@@ -403,11 +418,20 @@ for index, row in rundata.iterrows():
     timeon_list.append(stim_on) #ask lina
     #Draw the stimulus and check for responses
     for i in range(int(imFrames)):
-        draw_stim(win, imageDict[row['Condition']][0], photorect_white, lines)
+        if i%2 == 0:
+            draw_stim(win, imageDict[row['Condition']][0], photorect_white, lines)
+        else:
+            draw_stim(win, imageDict[row['Condition']][0], photorect_black, lines)
     for i in range(1, movieLength[0]):
-        draw_stim(win, imageDict[row['Condition']][i], photorect_white, lines)
+        if i%2 == 0:
+            draw_stim(win, imageDict[row['Condition']][0], photorect_white, lines)
+        else:
+            draw_stim(win, imageDict[row['Condition']][0], photorect_black, lines)
     for i in range(int(imFrames)):
-        last_flip = draw_stim(win, imageDict[row['Condition']][movieLength[1]], photorect_white, lines)
+        if i%2 == 0:
+            draw_stim(win, imageDict[row['Condition']][0], photorect_white, lines)
+        else:
+            last_flip = draw_stim(win, imageDict[row['Condition']][movieLength[1]], photorect_black, lines)
     timing_list.append(last_flip - stim_on)
     #Should i flip again to get image off screen?
     #If we are in a catch trial, start playing the movie backwards at the end
