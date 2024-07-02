@@ -21,3 +21,9 @@ framestomovies.py
 
 VisualAngleConversion&Testing
 	Script to test the size of images in visual angle on the screen, used to determine what size I want for the faces in terms of degree of visual angle.
+
+movieDarken.m
+	Reads in mp4 files and darkens them
+
+frameReader.m
+ 	Determines how many frames are in a given mp4 movie
