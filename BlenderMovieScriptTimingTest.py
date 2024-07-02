@@ -16,7 +16,7 @@ from PIL import Image
 participant = 1
 run_file = 1 #change every run
 ismeg = 1
-isfull = 1
+isfull = 0
 iseyetracking = 0
 islaptop = 0
 response_keys = ['1','2','3','4','q']
@@ -124,7 +124,7 @@ def drawISI(win, lines):
 def check_responses(response_keys):
     pressed=event.getKeys(keyList=response_keys, modifiers=False, timeStamped=False) 
     if pressed:
-        if pressed == ['q']:
+        if "q" in pressed:
             print('user quit experiment')
             #trialmat.to_csv(f"{fname_data}_quit.csv",index=False)
             if iseyetracking:
@@ -139,9 +139,9 @@ def check_responses(response_keys):
 
             
 #Draw the stimulus, fixation lines, and photorectoid  
-def draw_stim(win, stim, photorect_white, lines):
+def draw_stim(win, stim, photorect, lines):
     stim.draw()
-    photorect_white.draw()
+    photorect.draw()
     drawFix(lines)
     return win.flip()
 
@@ -203,8 +203,8 @@ def extract_number(filename):
     
 
 #Defining text that is displayed and the photorectoid 
-photorect_white = visual.Rect(win=win,width = 2,height=2,fillColor='white',pos=(-win.size[0]/2,win.size[1]/2))
-photorect_black = visual.Rect(win=win,width = 2,height=2,fillColor='black',pos=(-win.size[0]/2,win.size[1]/2))
+photorect_white = visual.Rect(win=win,width = 15,height=15,fillColor='white',pos=(-win.size[0]/2,win.size[1]/2))
+photorect_black = visual.Rect(win=win,width = 15,height=15,fillColor='black',pos=(-win.size[0]/2,win.size[1]/2))
 localizationText = visual.TextStim(win,text = 'Localizing head position ... \n \n please remain still', units = 'norm', height = 0.07)
 trigger_check_text = visual.TextStim(win, text='checking triggers... (press "c" to continue)',units = 'norm', height = 0.07)
 introScreen = visual.TextStim(win, text = 'Reminder: In this experiment, you will see a fixation point followed by an movie of a face. Press a button if the face begins rotating back the way it came. Press any button to begin',pos=(0.0, 0.0), units = 'norm', height = 0.07)
@@ -403,11 +403,20 @@ for index, row in rundata.iterrows():
     timeon_list.append(stim_on) #ask lina
     #Draw the stimulus and check for responses
     for i in range(int(imFrames)):
-        draw_stim(win, imageDict[row['Condition']][0], photorect_white, lines)
+        if i%2 == 0:
+            draw_stim(win, imageDict[row['Condition']][0], photorect_white, lines)
+        else:
+            draw_stim(win, imageDict[row['Condition']][0], photorect_black, lines)
     for i in range(1, movieLength[0]):
-        draw_stim(win, imageDict[row['Condition']][i], photorect_white, lines)
+        if i%2 == 0:
+            draw_stim(win, imageDict[row['Condition']][i], photorect_white, lines)
+        else:
+            draw_stim(win, imageDict[row['Condition']][i], photorect_black, lines)
     for i in range(int(imFrames)):
-        last_flip = draw_stim(win, imageDict[row['Condition']][movieLength[1]], photorect_white, lines)
+        if i%2 == 0:
+            draw_stim(win, imageDict[row['Condition']][movieLength[1]], photorect_white, lines)
+        else:
+            last_flip = draw_stim(win, imageDict[row['Condition']][movieLength[1]], photorect_black, lines)
     timing_list.append(last_flip - stim_on)
     #Should i flip again to get image off screen?
     #If we are in a catch trial, start playing the movie backwards at the end
