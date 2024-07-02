@@ -403,11 +403,20 @@ for index, row in rundata.iterrows():
     timeon_list.append(stim_on) #ask lina
     #Draw the stimulus and check for responses
     for i in range(int(imFrames)):
-        draw_stim(win, imageDict[row['Condition']][0], photorect_white, lines)
+        if i%2 == 0:
+            draw_stim(win, imageDict[row['Condition']][0], photorect_white, lines)
+        else:
+            draw_stim(win, imageDict[row['Condition']][0], photorect_black, lines)
     for i in range(1, movieLength[0]):
-        draw_stim(win, imageDict[row['Condition']][i], photorect_white, lines)
+        if i%2 == 0:
+            draw_stim(win, imageDict[row['Condition']][i], photorect_white, lines)
+        else:
+            draw_stim(win, imageDict[row['Condition']][i], photorect_black, lines)
     for i in range(int(imFrames)):
-        last_flip = draw_stim(win, imageDict[row['Condition']][movieLength[1]], photorect_white, lines)
+        if i%2 == 0:
+            draw_stim(win, imageDict[row['Condition']][movieLength[1]], photorect_white, lines)
+        else:
+            last_flip = draw_stim(win, imageDict[row['Condition']][movieLength[1]], photorect_black, lines)
     timing_list.append(last_flip - stim_on)
     #Should i flip again to get image off screen?
     #If we are in a catch trial, start playing the movie backwards at the end

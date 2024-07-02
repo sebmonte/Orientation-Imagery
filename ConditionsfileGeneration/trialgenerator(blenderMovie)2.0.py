@@ -4,7 +4,7 @@ import random
 import pandas as pd
 
 localTest = 0
-totalSheets = 6
+totalSheets = 2
 
 local_path = '/Users/montesinossl/desktop/BlenderExp/'
 
@@ -20,8 +20,8 @@ break_freq = 10 #How many trials before a break screen comes up
 jitter_amount = 0  # Specify the jitter amount
 
 # Define conditions and their unique integer codes
-conditions = ['0022_Left', '0022_Right', '0067_Left', '0067_Right', '0122_Left', 
-              '0122_Right', '0157_Left', '0157_Right', '0202_Left', '0202_Right',
+conditions = ['0022_Left', '0022_Right', '0067_Left', '0067_Right', '0112_Left', 
+              '0112_Right', '0157_Left', '0157_Right', '0202_Left', '0202_Right',
               '0247_Left', '0247_Right', '0292_Left', '0292_Right', '0337_Left', '0337_Right']
 anticipated_length = int(num_runs*len(conditions) + (num_runs*len(conditions))*catch_percentage/100)
 anticipated_length = int(num_runs*len(conditions))
