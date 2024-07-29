@@ -291,7 +291,12 @@ all_trials_completed = False
 
 #PCreate a sorted list of all the image frame files
 filenames = []
-for filename in os.listdir(testStim + 'Stimuli/'):
+if ismeg == 1:
+    stimuliPath = testStim + 'Stimuli/'
+else:
+    stimuliPath = testStim + 'Stimuli/resized/'
+
+for filename in os.listdir(stimuliPath):
     if filename.startswith('frame_') and filename.endswith('.png'):
         filenames.append(filename)
 filenames.sort(key=extract_number)
@@ -300,7 +305,7 @@ filenames.sort(key=extract_number)
 #Create a list of ordered psychopy imagestim files
 possibleImages = []
 for filename in filenames:
-    file_path = os.path.join(testStim + 'Stimuli/', filename)  
+    file_path = os.path.join(stimuliPath, filename)  
     possibleImages.append(visual.ImageStim(win, file_path, units = 'pix', pos = (0, 20)))
 
 if length == 0:
@@ -311,6 +316,7 @@ else:
     movieLength = [90, 89, 69]
     step = 2
     frames = 90
+
 #Now I need a dictionary where each entry is a condition and the list of the image frames I want to display for that condition
 imageDict = {}
 for condition in rundata['Condition'].unique():
