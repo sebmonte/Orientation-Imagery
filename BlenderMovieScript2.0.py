@@ -15,8 +15,8 @@ from PIL import Image
 #Initial parameters
 participant = 1
 run_file = 1 #change every run
-ismeg = 1
-isfull = 1
+ismeg = 0
+isfull = 0
 iseyetracking = 0
 islaptop = 0
 response_keys = ['1','2','3','4','q']
@@ -124,7 +124,7 @@ def drawISI(win, lines):
 def check_responses(response_keys):
     pressed=event.getKeys(keyList=response_keys, modifiers=False, timeStamped=False) 
     if pressed:
-        if pressed == ['q']:
+        if 'q' in pressed:
             print('user quit experiment')
             #trialmat.to_csv(f"{fname_data}_quit.csv",index=False)
             if iseyetracking:
