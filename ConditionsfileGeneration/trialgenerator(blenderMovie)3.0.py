@@ -3,7 +3,7 @@ import os
 import random
 import pandas as pd
 
-localTest = 0
+localTest = 1
 totalSheets = 5
 
 local_path = '/Users/montesinossl/desktop/BlenderExp/'
@@ -24,6 +24,52 @@ conditions = ['0022_Left', '0022_Right', '0067_Left', '0067_Right', '0112_Left',
               '0112_Right', '0157_Left', '0157_Right', '0202_Left', '0202_Right',
               '0247_Left', '0247_Right', '0292_Left', '0292_Right', '0337_Left', '0337_Right']
 
+# Create a dictionary to hold the groups
+grouped_conditions = {}
+
+# Function to find the group key
+def find_group_key(num):
+    return min(num, num - 180 if num >= 180 else num + 180)
+
+# Loop through the conditions and group them
+for condition in conditions:
+    number, side = condition.split('_')
+    num = int(number)
+    group_key = find_group_key(num)
+    
+    if group_key not in grouped_conditions:
+        grouped_conditions[group_key] = []
+    grouped_conditions[group_key].append(condition)
+
+# Convert the grouped dictionary to a list of lists
+grouped_list = list(grouped_conditions.values())
+
+def validate_grouping1(input_list, grouped_list):
+    # Create a mapping from condition to its index in the input list
+    index_map = {condition: index for index, condition in enumerate(input_list)}
+    
+    for group in grouped_list:
+        
+        # Get indices for the first two and last two elements in the group
+        first_two_indices = [index_map[group[0]], index_map[group[1]]]
+        last_two_indices = [index_map[group[-2]], index_map[group[-1]]]
+        # Check for violations
+        for first_index in first_two_indices:
+            for last_index in last_two_indices:
+                if abs(first_index - last_index) == 1:
+                    return False
+    
+    return True
+
+def validate_grouping2(input_list, grouped_list):
+    # Create a mapping from condition to its index in the input list
+    for sublist in grouped_list:
+        if input_list[0] in sublist and input_list[1] in sublist:
+            return True
+    
+    return False
+
+
 
 anticipated_length = int(num_runs*len(conditions) + (num_runs*len(conditions))*catch_percentage/100)
 anticipated_length = int(num_runs*len(conditions))
@@ -41,8 +87,11 @@ for sheet in range(1, totalSheets + 1):
         random.shuffle(conditions)  # Shuffle conditions for each run
         #Ensures that the condition at the end of run is not the condition at the start of the next run
         #This would be a catch trial, but I want to determine all catch trials later
-        while conditionsOld[-1] == conditions[0]:
+        while (validate_grouping1(conditions, grouped_list) == False) or validate_grouping2([conditionsOld[-1], conditions[0]], grouped_list):
+            print('in')
             random.shuffle(conditions)
+        #while conditionsOld[-1] == conditions[0]:
+            #random.shuffle(conditions)
         
         #Loop to create the section in the dataframe for each run
         for i, condition in enumerate(conditions):

@@ -416,7 +416,6 @@ while index < len(rundata):
         draw_stim(win, imageDict[row['Condition']][0], photorect_white, lines)
     for i in range(1, movieLength[0], 2):
         for _ in range(2):
-            print(i)
             draw_stim(win, imageDict[row['Condition']][i], photorect_white, lines)
     for i in range(int(imFrames)):
         last_flip = draw_stim(win, imageDict[row['Condition']][movieLength[1]], photorect_white, lines)
