@@ -15,7 +15,7 @@ from PIL import Image
 #Initial parameters
 participant = 1
 run_file = 1 #change every run
-ismeg = 1
+ismeg = 0
 isfull = 0
 iseyetracking = 0
 islaptop = 0
@@ -226,7 +226,7 @@ if islaptop:
 
 imDuration = .05 # in seconds
 imFrames = imDuration/frameDur
-print('imdur is', imFrames)
+print('imframes are', imFrames)
 fixDuration = .5 # seconds of blank screen in between stim
 fixationFrames = fixDuration/frameDur
 
@@ -291,7 +291,12 @@ all_trials_completed = False
 
 #PCreate a sorted list of all the image frame files
 filenames = []
-for filename in os.listdir(testStim + 'Stimuli/'):
+if ismeg == 1:
+    stimuliPath = testStim + 'Stimuli/'
+else:
+    stimuliPath = testStim + 'Stimuli/resized/'
+
+for filename in os.listdir(stimuliPath):
     if filename.startswith('frame_') and filename.endswith('.png'):
         filenames.append(filename)
 filenames.sort(key=extract_number)
@@ -300,7 +305,7 @@ filenames.sort(key=extract_number)
 #Create a list of ordered psychopy imagestim files
 possibleImages = []
 for filename in filenames:
-    file_path = os.path.join(testStim + 'Stimuli/', filename)  
+    file_path = os.path.join(stimuliPath, filename)  
     possibleImages.append(visual.ImageStim(win, file_path, units = 'pix', pos = (0, 20)))
 
 if length == 0:
@@ -404,18 +409,24 @@ for index, row in rundata.iterrows():
     #Draw the stimulus and check for responses
     for i in range(int(imFrames)):
         if i%2 == 0:
+            print('here')
             draw_stim(win, imageDict[row['Condition']][0], photorect_white, lines)
         else:
+            print('there')
             draw_stim(win, imageDict[row['Condition']][0], photorect_black, lines)
     for i in range(1, movieLength[0]):
         if i%2 == 0:
+            print('here')
             draw_stim(win, imageDict[row['Condition']][i], photorect_white, lines)
         else:
+            print('there')
             draw_stim(win, imageDict[row['Condition']][i], photorect_black, lines)
     for i in range(int(imFrames)):
         if i%2 == 0:
+            print('here')
             draw_stim(win, imageDict[row['Condition']][movieLength[1]], photorect_white, lines)
         else:
+            print('there')
             last_flip = draw_stim(win, imageDict[row['Condition']][movieLength[1]], photorect_black, lines)
     timing_list.append(last_flip - stim_on)
     #Should i flip again to get image off screen?

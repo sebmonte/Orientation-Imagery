@@ -226,7 +226,7 @@ if islaptop:
 
 imDuration = .05 # in seconds
 imFrames = imDuration/frameDur
-print('imdur is', imFrames)
+print('imframes are', imFrames)
 fixDuration = .5 # seconds of blank screen in between stim
 fixationFrames = fixDuration/frameDur
 
@@ -395,7 +395,11 @@ for i in sorted_frames:
 
 #Trial loop for experiment
 keys_pressed = 0
-for index, row in rundata.iterrows():
+index = 0
+#for index, row in rundata.iterrows()
+while index < len(rundata):
+    row = rundata.iloc[index]
+    print(index)
     print(row['Condition'])
     #Send triggers if in MEG
     if ismeg:
@@ -410,11 +414,13 @@ for index, row in rundata.iterrows():
     #Draw the stimulus and check for responses
     for i in range(int(imFrames)):
         draw_stim(win, imageDict[row['Condition']][0], photorect_white, lines)
-    for i in range(1, movieLength[0]):
-        draw_stim(win, imageDict[row['Condition']][i], photorect_white, lines)
+    for i in range(1, movieLength[0], 2):
+        for _ in range(2):
+            print(i)
+            draw_stim(win, imageDict[row['Condition']][i], photorect_white, lines)
     for i in range(int(imFrames)):
         last_flip = draw_stim(win, imageDict[row['Condition']][movieLength[1]], photorect_white, lines)
-    timing_list.append(last_flip - stim_on)
+    currentTiming = last_flip - stim_on
     #Should i flip again to get image off screen?
     #If we are in a catch trial, start playing the movie backwards at the end
     if row['Catch'] == 1:
@@ -423,6 +429,7 @@ for index, row in rundata.iterrows():
         if keys_pressed==0:
             keys_pressed = check_responses(response_keys)
     print(last_flip - stim_on)
+    timing_list.append(currentTiming)
     #Turn off trigger once stimulus is off the screen
     if ismeg:
         win.callOnFlip(p_port.setData, int(0))
@@ -440,8 +447,15 @@ for index, row in rundata.iterrows():
         draw_break(win, break_counter, break_freq, lines, fixationFrames, index, total_trials)
         break_counter += 1
 
+    if currentTiming > 1.58:
+        new_row = row.copy()
+        new_row['run'] = 'makeup'
+        rundata = rundata.append(new_row, ignore_index=True)
+
     #add time1 and time2 into trial output
     print(response_list)
+    index += 1
+
 
 
 #Localize head-text before ending
