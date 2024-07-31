@@ -43,6 +43,7 @@ for condition in conditions:
 
 # Convert the grouped dictionary to a list of lists
 grouped_list = list(grouped_conditions.values())
+print(grouped_list)
 
 def validate_grouping1(input_list, grouped_list):
     # Create a mapping from condition to its index in the input list
@@ -57,9 +58,9 @@ def validate_grouping1(input_list, grouped_list):
         for first_index in first_two_indices:
             for last_index in last_two_indices:
                 if abs(first_index - last_index) == 1:
-                    return False
+                    return True
     
-    return True
+    return False
 
 def validate_grouping2(input_list, grouped_list):
     # Create a mapping from condition to its index in the input list
@@ -87,7 +88,7 @@ for sheet in range(1, totalSheets + 1):
         random.shuffle(conditions)  # Shuffle conditions for each run
         #Ensures that the condition at the end of run is not the condition at the start of the next run
         #This would be a catch trial, but I want to determine all catch trials later
-        while (validate_grouping1(conditions, grouped_list) == False) or validate_grouping2([conditionsOld[-1], conditions[0]], grouped_list):
+        while (validate_grouping1(conditions, grouped_list) == True) or validate_grouping2([conditionsOld[-1], conditions[0]], grouped_list) == True:
             print('in')
             random.shuffle(conditions)
         #while conditionsOld[-1] == conditions[0]:

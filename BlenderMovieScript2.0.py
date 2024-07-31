@@ -377,8 +377,8 @@ for i in range(int(fixationFrames + np.random.randint(0,5,1)[0])):
     photorect_black.draw()
     last_flip = win.flip()
 
-
-'''Look at each movie to test the display if needed
+'''
+#Look at each movie to test the display if needed
 testList = rundata['Condition'].unique()
 # Function to extract the numerical part and convert it to an integer
 def extract_frame_number(frame):
@@ -389,6 +389,7 @@ sorted_frames = sorted(testList, key=extract_frame_number)
 
 for i in sorted_frames:
     for p in range(movieLength[0]):
+        print(i)
         draw_stim(win, imageDict[i][p], photorect_white, lines)
     event.waitKeys()
 '''
@@ -446,7 +447,7 @@ while index < len(rundata):
         draw_break(win, break_counter, break_freq, lines, fixationFrames, index, total_trials)
         break_counter += 1
 
-    if currentTiming > 1.58:
+    if currentTiming > 3.09:
         new_row = row.copy()
         new_row['run'] = 'makeup'
         rundata = rundata.append(new_row, ignore_index=True)
