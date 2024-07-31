@@ -43,7 +43,7 @@ for condition in conditions:
 
 # Convert the grouped dictionary to a list of lists
 grouped_list = list(grouped_conditions.values())
-print(grouped_list)
+
 
 def validate_grouping1(input_list, grouped_list):
     # Create a mapping from condition to its index in the input list
@@ -62,11 +62,15 @@ def validate_grouping1(input_list, grouped_list):
     
     return False
 
-def validate_grouping2(input_list, grouped_list):
-    # Create a mapping from condition to its index in the input list
-    for sublist in grouped_list:
-        if input_list[0] in sublist and input_list[1] in sublist:
-            return True
+
+def validate_grouping2(input_list):
+    number, side = input_list[0].split('_')
+    number2, side = input_list[1].split('_')
+
+    num1 = int(number)
+    num2 = int(number2)
+    if abs(num2 - num1) == 180:
+        return True
     
     return False
 
@@ -76,7 +80,7 @@ anticipated_length = int(num_runs*len(conditions) + (num_runs*len(conditions))*c
 anticipated_length = int(num_runs*len(conditions))
 
 condition_codes = {condition: idx + 1 for idx, condition in enumerate(conditions)}
-conditionsOld = ['tst']
+conditionsOld = ['0_test']
 # Create a list to store the experiment data
 experiment_data = []
 
@@ -88,8 +92,7 @@ for sheet in range(1, totalSheets + 1):
         random.shuffle(conditions)  # Shuffle conditions for each run
         #Ensures that the condition at the end of run is not the condition at the start of the next run
         #This would be a catch trial, but I want to determine all catch trials later
-        while (validate_grouping1(conditions, grouped_list) == True) or validate_grouping2([conditionsOld[-1], conditions[0]], grouped_list) == True:
-            print('in')
+        while (validate_grouping1(conditions, grouped_list) == True) or validate_grouping2([conditionsOld[-1], conditions[0]]) == True:
             random.shuffle(conditions)
         #while conditionsOld[-1] == conditions[0]:
             #random.shuffle(conditions)
@@ -123,15 +126,18 @@ for sheet in range(1, totalSheets + 1):
         original_index = min(max(original_index, 0), len(df))
         #Make sure that no trial with a break screen is duplicated
         if df.iloc[original_index]['Break'] == 1:
-            print('found it')
             continue
+        # Insert the catch trial
         # Insert the catch trial
         duplicated_row = df.iloc[original_index].copy()
         duplicated_row['Catch'] = 1
-        duplicated_row['Condition'] = random.choice(conditions)
+        catchCond = random.choice(conditions)
+        # Correct the while loop condition
+        while validate_grouping2([catchCond, df.iloc[original_index]['Condition']]) or validate_grouping2([catchCond, df.iloc[original_index + 1]['Condition']]):
+            catchCond = random.choice(conditions)
+        duplicated_row['Condition'] = catchCond
         duplicated_row['Code'] = 17
         df = pd.concat([df.iloc[:original_index + 1], duplicated_row.to_frame().T, df.iloc[original_index + 1:]]).reset_index(drop=True)
-
 
 
     # Specify the output Excel file
