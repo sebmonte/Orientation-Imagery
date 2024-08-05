@@ -13,10 +13,10 @@ import math
 from PIL import Image
 
 #Initial parameters
-participant = 1
+participant = 3
 run_file = 1 #change every run
-ismeg = 0
-isfull = 0
+ismeg = 1
+isfull = 1
 iseyetracking = 0
 islaptop = 0
 response_keys = ['1','2','3','4','q']
@@ -422,12 +422,13 @@ for index, row in rundata.iterrows():
     for i in range(len(orientationList)):
         if i%2 == 0:
             last_flip = draw_stim(win, orientationList[i], photorect_white, lines)
+            if i == 0:
+                stim_on = last_flip
         else:
             last_flip = draw_stim(win, orientationList[i], photorect_black, lines)
-
         while trialClock.getTime()<= movie_loop + stimDur*(i+1) - frameTolerance:
                 check_responses(response_keys)
-    #print(last_flip - stim_on)
+    trialTime = last_flip - stim_on
     #Turn off trigger once stimulus is off the screen
     if ismeg:
         win.callOnFlip(p_port.setData, int(0))
@@ -438,6 +439,7 @@ for index, row in rundata.iterrows():
             keys_pressed = check_responses(response_keys)
     #Record if they hit any buttons
     response_list.append(keys_pressed)
+    timing_list.append(trialTime)
     if ismeg:
         trigger(port=p_port, code = 0)
     # Draw break screen if '1' in trialmatrix
