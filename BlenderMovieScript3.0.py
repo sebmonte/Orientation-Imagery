@@ -422,13 +422,12 @@ for index, row in rundata.iterrows():
     for i in range(len(orientationList)):
         if i%2 == 0:
             last_flip = draw_stim(win, orientationList[i], photorect_white, lines)
-            if i == 0:
-                stim_on = last_flip
         else:
             last_flip = draw_stim(win, orientationList[i], photorect_black, lines)
         while trialClock.getTime()<= movie_loop + stimDur*(i+1) - frameTolerance:
-                check_responses(response_keys)
-    trialTime = last_flip - stim_on
+            if keys_pressed==0:
+                keys_pressed = check_responses(response_keys)
+    trialTime = trialClock.getTime() - movie_loop
     #Turn off trigger once stimulus is off the screen
     if ismeg:
         win.callOnFlip(p_port.setData, int(0))
