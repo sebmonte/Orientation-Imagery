@@ -3,7 +3,7 @@ import os
 import random
 import pandas as pd
 
-localTest = 1
+localTest = 0
 totalSheets = 5
 
 local_path = '/Users/montesinossl/desktop/BlenderExp/'
