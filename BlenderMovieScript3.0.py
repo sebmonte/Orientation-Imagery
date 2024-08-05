@@ -414,25 +414,20 @@ for index, row in rundata.iterrows():
         if iseyetracking:
             eyetracker.send_message(el_tracker,row['Code'])
     keys_pressed = 0
-    startClock = core.Clock()
-    trialClock = core.Clock()
-    movie_on = win.getFutureFlipTime(clock = startClock)
+
     orientationList = imageDict[row['Condition']][::3]
 
-    stim_on = draw_stim(win, orientationList[0], photorect_white, lines)
-    while startClock.getTime()<= movie_on + startDur - frameTolerance:
-        check_responses(response_keys)
+    trialClock = core.Clock()
     movie_loop = win.getFutureFlipTime(clock = trialClock)
-    rectChange = False
     for i in range(len(orientationList)):
-        if rectChange == False:
+        if i%2 == 0:
             last_flip = draw_stim(win, orientationList[i], photorect_white, lines)
         else:
             last_flip = draw_stim(win, orientationList[i], photorect_black, lines)
-        while trialClock.getTime()<= movie_loop + stimDur*i - frameTolerance:
-            check_responses(response_keys)
-        rectChange = not rectChange
-    print(last_flip - stim_on)
+
+        while trialClock.getTime()<= movie_loop + stimDur*(i+1) - frameTolerance:
+                check_responses(response_keys)
+    #print(last_flip - stim_on)
     #Turn off trigger once stimulus is off the screen
     if ismeg:
         win.callOnFlip(p_port.setData, int(0))
