@@ -15,15 +15,15 @@ from PIL import Image
 #Initial parameters
 participant = 3
 run_file = 1 #change every run
-ismeg = 1
-isfull = 1
+ismeg = 0
+isfull = 0
 iseyetracking = 0
 islaptop = 0
 response_keys = ['1','2','3','4','q']
 length = 0 #if 0, 180 frame movies, if 1, 90 frame movies (twice as fast)
 generationMethod = 0 #If 0, movies labeled 'right' go numerically up, 'left' goes numerically down in frames
 #if 1, movies go left/right based on head position as you look intuitively
-
+fname = f'{participant}_{run_file}'
 #setup libraries
 thisDir = os.getcwd() 
 #Set the right path to my file directory
@@ -45,17 +45,7 @@ timing_list = []
 stimList = rundata['Stimulus']
 
 
-#Making the window
-if iseyetracking:
-    import eyetracker 
-    fname = f'{participant}S{str(run_file)}'
-    et_fname = eyetracker.make_filename(fname=fname)
-    # mon = eyetracker.setup_monitor(monitorwidth=screen_width,viewing_distance=view_dist,widthpix=1027,heightpix=768)
-    el_tracker,win = eyetracker.connect(fname=et_fname,isfullscreen=isfull, background_col=(-.5, -.5, -.5))
-    eyetracker.do_setup(el_tracker)
-    # eyetracker.calib(win,el_tracker,fix_size=deg_to_pix(1,win,screen_width,view_dist))
-else:
-    win = visual.Window(units="pix", fullscr=isfull, color=(-.5, -.5, -.5))
+win = visual.Window(units="pix", fullscr=isfull, color=(-.5, -.5, -.5))
 
 # Wait for start key, q to quit experiment
 while True:
@@ -118,6 +108,7 @@ def drawFix(lines):
         
 def drawISI(win, lines):
     drawFix(lines)
+    photorect_black.draw()
     return win.flip()
     
     
@@ -127,8 +118,6 @@ def check_responses(response_keys):
         if 'q' in pressed:
             print('user quit experiment')
             #trialmat.to_csv(f"{fname_data}_quit.csv",index=False)
-            if iseyetracking:
-                eyetracker.exit(el_tracker,et_fname,results_folder=f'{testStim}/results/')
             win.close()
             core.quit()
         else: 
@@ -137,11 +126,10 @@ def check_responses(response_keys):
     else:
         return 0
 
-            
 #Draw the stimulus, fixation lines, and photorectoid  
-def draw_stim(win, stim, photorect_white, lines):
+def draw_stim(win, stim, photorect, lines):
     stim.draw()
-    photorect_white.draw()
+    photorect.draw()
     drawFix(lines)
     return win.flip()
 
@@ -200,11 +188,35 @@ def extract_number(filename):
     # Assuming the number is between 'frame_' and '.png'
     number_part = filename[len('frame_'):-len('.png')]
     return int(number_part)
+
+def eyetracker_exit(el_tracker,fname,output_folder):
+    el_tracker.stopRecording()
+    # Close the edf data file on the Host
+    # Put tracker in Offline mode
+    el_tracker.setOfflineMode()
+
+    # Clear the Host PC screen and wait for 500 ms
+    el_tracker.sendCommand('clear_screen 0')
+    pylink.msecDelay(500)
+
+    # Close the edf data file on the Host
+    el_tracker.closeDataFile()
+
+    # Show a file transfer message on the screen
+    print('EDF data is transferring from EyeLink Host PC...')
+    el_tracker.receiveDataFile(fname + '.edf', output_folder +'/' + fname +'.edf')
+
+    # Close the link to the tracker.
+    el_tracker.close()
     
 
 #Defining text that is displayed and the photorectoid 
-photorect_white = visual.Rect(win=win,width = 2,height=2,fillColor='white',pos=(-win.size[0]/2,win.size[1]/2))
-photorect_black = visual.Rect(win=win,width = 2,height=2,fillColor='black',pos=(-win.size[0]/2,win.size[1]/2))
+photorect_white = visual.Rect(win=win,width = 10,height=10,fillColor='white',pos=(-win.size[0]/2,win.size[1]/2))
+
+
+photorect_black = visual.Rect(win=win,width = 2,height=2,fillColor=(-.5, -.5, -.5),pos=(-win.size[0]/2,win.size[1]/2))
+
+
 localizationText = visual.TextStim(win,text = 'Localizing head position ... \n \n please remain still', units = 'norm', height = 0.07)
 trigger_check_text = visual.TextStim(win, text='checking triggers... (press "c" to continue)',units = 'norm', height = 0.07)
 introScreen = visual.TextStim(win, text = 'Reminder: In this experiment, you will see a fixation point followed by an movie of a face. Press a button if the face begins rotating back the way it came. Press any button to begin',pos=(0.0, 0.0), units = 'norm', height = 0.07)
@@ -224,8 +236,8 @@ else:
 if islaptop:
     frameDur = 1/120
 
-startDur = .15
-stimDur = .05
+startDur = .05
+stimDur = .06
 
 
 imDuration = .05 # in seconds
@@ -254,6 +266,11 @@ width_degree = dva*stimAspectRatio
 #stimAspectRatio = 0.75
 dva_width_fixation = 0.2 #in terms of degrees of visual angle
 dva_length_fixation = 0.2 # in terms of degrees of visual angle
+
+
+if iseyetracking:
+    import pylink
+    from EyeLinkCoreGraphicsPsychoPy import EyeLinkCoreGraphicsPsychoPy
 
 #Function to convert degrees of visual angle to pixels on the screen
 def deg_to_pix(dva=1,view_dist=78.5,screen_width=42, win_size = [1024, 768]):
@@ -341,7 +358,8 @@ for condition in rundata['Condition'].unique():
 ######################################
 
 
-
+    
+    
 #Function to test MEG triggers and photorect channel
 if ismeg == 1:
     p_port = parallel.ParallelPort(address='0x0378')
@@ -366,7 +384,111 @@ if ismeg:
             pressed = event.getKeys(keyList = ['a'])
             if pressed:
                 break
+if iseyetracking == 1:
 
+    # STEP 1: Connect to the EyeLink Host PC
+    pylink.closeGraphics()
+    try:
+        el_tracker = pylink.EyeLink("100.1.1.1")
+    except RuntimeError as error:
+        print('ERROR:', error)
+        core.quit()
+        sys.exit()
+
+    # STEP 2: Open an EDF data file on the Host PC
+    try:
+        el_tracker.openDataFile(fname)
+    except RuntimeError as err:
+        print('ERROR:', err)
+        # close the link if we have one open
+        if el_tracker.isConnected():
+            el_tracker.close()
+        core.quit()
+        sys.exit()
+
+    # STEP 3: Configure the tracker
+    el_tracker.setOfflineMode()
+    
+    # Get the software version:  1-EyeLink I, 2-EyeLink II, 3/4-EyeLink 1000, 5-EyeLink 1000 Plus, 6-Portable DUO
+    vstr = el_tracker.getTrackerVersionString()
+    eyelink_ver = int(vstr.split()[-1].split('.')[0])
+    
+    # print out some version info in the shell
+    print('Running experiment on %s, version %d' % (vstr, eyelink_ver))
+
+    # File and Link data control
+    
+    # what eye events to save in the EDF file
+    file_event_flags = 'LEFT,RIGHT,FIXATION,SACCADE,BLINK,MESSAGE,BUTTON,INPUT'
+    
+    # what eye events to make available over the link
+    link_event_flags = 'LEFT,RIGHT,FIXATION,SACCADE,BLINK,BUTTON,FIXUPDATE,INPUT'
+    
+    # what sample data to save in the EDF data file and to make available
+    if eyelink_ver > 3:
+        file_sample_flags = 'LEFT,RIGHT,GAZE,HREF,RAW,AREA,HTARGET,GAZERES,BUTTON,STATUS,INPUT'
+        link_sample_flags = 'LEFT,RIGHT,GAZE,GAZERES,AREA,HTARGET,STATUS,INPUT'
+    else:
+        file_sample_flags = 'LEFT,RIGHT,GAZE,HREF,RAW,AREA,GAZERES,BUTTON,STATUS,INPUT'
+        link_sample_flags = 'LEFT,RIGHT,GAZE,GAZERES,AREA,STATUS,INPUT'
+    el_tracker.sendCommand("file_event_filter = %s" % file_event_flags)
+    el_tracker.sendCommand("file_sample_data = %s" % file_sample_flags)
+    el_tracker.sendCommand("link_event_filter = %s" % link_event_flags)
+    el_tracker.sendCommand("link_sample_data = %s" % link_sample_flags)
+
+    # Choose a calibration type, H3, HV3, HV5, HV13 (HV = horizontal/vertical),
+    el_tracker.sendCommand("calibration_type = HV5")
+
+    
+    # STEP 4: set up a graphics environment for calibration
+    win_eye=visual.Window(color='Gray',colorSpace='rgb',units='pix',checkTiming=True,fullscr=1,winType='pyglet')
+    scn_width, scn_height = win_eye.size
+
+    # Pass the display pixel coordinates (left, top, right, bottom) to the tracker
+    el_coords = "screen_pixel_coords = 0 0 %d %d" % (scn_width - 1, scn_height - 1)
+    el_tracker.sendCommand(el_coords)
+
+    # Write a DISPLAY_COORDS message to the EDF file
+    dv_coords = "DISPLAY_COORDS  0 0 %d %d" % (scn_width - 1, scn_height - 1)
+    el_tracker.sendMessage(dv_coords)
+
+    # Change the proportion of the screen used for calibration and validation
+    # default values are 0.88 0.83
+    el_tracker.sendCommand("calibration_area_proportion 0.5 0.5")
+    el_tracker.sendCommand("validation_area_proportion 0.5 0.5")
+
+
+    # Configure a graphics environment (genv) for tracker calibration
+    genv = EyeLinkCoreGraphicsPsychoPy(el_tracker, win_eye)
+    print(genv)  # print out the version number of the CoreGraphics library
+
+    # Set background and foreground colors for the calibration target
+    foreground_color = (-1, -1, -1) #black
+    background_color = win_eye.color
+    genv.setCalibrationColors(foreground_color, background_color)
+
+    # Request Pylink to use the PsychoPy window we opened above for calibration
+    pylink.openGraphicsEx(genv)
+    
+    # Calibrate EyeLink
+    if iseyetracking == 1:
+        try:
+            el_tracker.doTrackerSetup()
+        except RuntimeError as err:
+            print('ERROR:', err)
+            el_tracker.exitCalibration()
+        
+        # get a reference to the currently active EyeLink connection
+        el_tracker = pylink.getEYELINK()
+        # put the tracker in the offline mode first
+        el_tracker.setOfflineMode()
+        # clear the host screen before we draw the fixation square
+        el_tracker.sendCommand('clear_screen 0')
+        # Start recording 
+        el_tracker.startRecording(1, 1, 1, 1) 
+
+    #close the eyetracking window so we can go back to the task
+    win_eye.close()
 core.wait(.5)
 
 #Intro and Instructions Screen
@@ -399,12 +521,17 @@ for i in sorted_frames:
     event.waitKeys()
 '''
 
+#Display black photorect the whole time
+#Perform win.flip() outside of the loop
+#Reset the trial clock
+#Get rid of defining last_flip
+
 #Trial loop for experiment
 keys_pressed = 0
 index = 0
 frameTolerance = .001
 #for index, row in rundata.iterrows()
-
+win.flip()
 for index, row in rundata.iterrows():
     print(index)
     print(row['Condition'])
@@ -413,21 +540,31 @@ for index, row in rundata.iterrows():
         #win.callOnFlip(trigger, port = p_port, code=code)
         win.callOnFlip(p_port.setData, int(row['Code']))
         if iseyetracking:
-            eyetracker.send_message(el_tracker,row['Code'])
+            trial = row['Code']
+            el_tracker.sendMessage('TRIALID %d' % trial)
+            status_msg = 'TRIAL number %d' % trial
+            el_tracker.sendCommand("record_status_message '%s'" % status_msg)
     keys_pressed = 0
-
     orientationList = imageDict[row['Condition']][::3]
 
     trialClock = core.Clock()
     movie_loop = win.getFutureFlipTime(clock = trialClock)
+    trialClock.reset()
+    #I do not need to define last_flip could take that out too
     for i in range(len(orientationList)):
         if i%2 == 0:
-            draw_stim(win, orientationList[i], photorect_white, lines)
+            first_flip = draw_stim(win, orientationList[i], photorect_white, lines)
         else:
-            draw_stim(win, orientationList[i], photorect_black, lines)
+            last_flip = draw_stim(win, orientationList[i], photorect_black, lines)
         while trialClock.getTime()<= movie_loop + stimDur*(i+1) - frameTolerance:
             if keys_pressed==0:
                 keys_pressed = check_responses(response_keys)
+        testTime = win.flip()
+        if i%2 == 0:
+            print(testTime - first_flip)
+        else:
+            print(testTime - last_flip)
+        print(i)
     trialTime = trialClock.getTime() - movie_loop
     #Turn off trigger once stimulus is off the screen
     if ismeg:
@@ -468,7 +605,10 @@ df = pd.DataFrame(response_list, timing_list)
 rundata.to_csv(f'extracted_dataMovie{participant}{run_file}.csv', index=False)
 
 #exit the eyetracking
-if iseyetracking:
-    eyetracker.exit(el_tracker,et_fname,results_folder=f'{testStim}/results/')
+if iseyetracking == 1:
+    try:
+        eyetracker_exit(el_tracker,fname,output_folder)
+    except RuntimeError as error:
+        print('exiting eyetracker did not work...')
 
 

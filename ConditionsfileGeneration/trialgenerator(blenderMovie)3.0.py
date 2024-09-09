@@ -15,9 +15,9 @@ else:
 # Set your variables
 num_runs =  7 # Specify the number of runs
 
-catch_percentage = 15  # Specify the percentage of rows to duplicate
+catch_percentage = 15  # Specify the percentage of rows to duplicate with catch trials
 break_freq = 10 #How many trials before a break screen comes up
-jitter_amount = 0  # Specify the jitter amount
+jitter_amount = 0  # Specify the jitter amount for catch trial insertion
 
 # Define conditions and their unique integer codes
 conditions = ['0022_Left', '0022_Right', '0067_Left', '0067_Right', '0112_Left', 
