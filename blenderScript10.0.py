@@ -11,9 +11,9 @@ import sys
 from psychopy.hardware import keyboard
 import math
 from PIL import Image
-participant = 3
-run_file = 1
-fname = f'{participant}_{run_file}movie'
+participant = 1
+run_file = 4
+fname = f'{participant}_{run_file}still'
 ismeg = 1
 isfull = 1
 iseyetracking = 1
@@ -28,7 +28,7 @@ if ismeg == 0:
 else:
     testStim = '/Users/meglab/EExperiments/Sebastian/BlenderPilot/'
 
-output_folder = '/Users/meglab/EExperiments/Sebastian/BlenderPilot/eyetracking'
+output_folder = '/Users/meglab/EExperiments/Sebastian/BlenderMoviePilot/Data/eyetracking'
 
 imDir = '/Users/montesinossl/Desktop/BlenderExp/Stimuli'
 rundata=data.importConditions(testStim + f'megStim{run_file}.xlsx')
@@ -274,13 +274,7 @@ if ismeg == 1:
             core.wait(0.1)
             if pressed:
                 break
-if ismeg:
-        while 1:
-            localizationText.draw()
-            win.flip()
-            pressed = event.getKeys(keyList = ['a'])
-            if pressed:
-                break
+
 if iseyetracking == 1:
 
     # STEP 1: Connect to the EyeLink Host PC
@@ -388,6 +382,13 @@ if iseyetracking == 1:
     win_eye.close()
 core.wait(.5)
 
+if ismeg:
+        while 1:
+            localizationText.draw()
+            win.flip()
+            pressed = event.getKeys(keyList = ['a'])
+            if pressed:
+                break
 
 #Intro and Instructions Screen
 introScreen.draw()
