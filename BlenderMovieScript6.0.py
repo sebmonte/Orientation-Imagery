@@ -377,13 +377,7 @@ if ismeg == 1:
             core.wait(0.1)
             if pressed:
                 break
-if ismeg:
-        while 1:
-            localizationText.draw()
-            win.flip()
-            pressed = event.getKeys(keyList = ['a'])
-            if pressed:
-                break
+
 if iseyetracking == 1:
 
     # STEP 1: Connect to the EyeLink Host PC
@@ -491,6 +485,14 @@ if iseyetracking == 1:
     win_eye.close()
 core.wait(.5)
 
+if ismeg:
+        while 1:
+            localizationText.draw()
+            win.flip()
+            pressed = event.getKeys(keyList = ['a'])
+            if pressed:
+                break
+
 #Intro and Instructions Screen
 introScreen.draw()
 win.flip()
@@ -594,6 +596,7 @@ rundata['Responses'] = response_list
 rundata['Timing'] = timing_list
 df = pd.DataFrame(response_list, timing_list)
 rundata.to_csv(f'extracted_dataMovie{participant}{run_file}.csv', index=False)
+print(rundata)
 
 #Exit eyetracking
 if iseyetracking == 1:
