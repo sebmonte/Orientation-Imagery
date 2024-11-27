@@ -7,6 +7,13 @@ Folder that contains scripts that generate the conditions files used in the expe
 ***Stimuli & Trialsheets***
 Contains the stimuli for the experiments and the logfiles for each subject
 
+***Analysis Scripts***
+Contains scripts for analyzing the data:
+step0: Prepbids - prep the data for conversion to bids format
+step1: Preprocess - preprocess the data and save out cleaned files
+step2: Decoding - Current scripts for decoding within and between still/movie conditions
+step3: Regression - Scripts in progress for an encoding based approach
+
 ***Testing Scripts***
 Scripts for handling and testing various components of the experiment
 
