@@ -28,7 +28,7 @@ def resize_images(folder_path, new_size, new_prefix='resized_'):
 
     print(f"Resized images are saved in {output_folder}")
 
-# Example usage
+# My local path
 folder_path = '/Users/montesinossl/Desktop/BlenderExp/Stimuli/'  
 new_size = (514, 384)  # Specify the new size (width, height) in pixels
 
