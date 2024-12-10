@@ -15,9 +15,11 @@ BlenderStillScript: Shows the still conditions
 ***Analysis Scripts***
 Contains scripts for analyzing the data:
 step0: Prepbids - prep the data for conversion to bids format
-step1: Preprocess - preprocess the data and save out cleaned files
-step2: Decoding - Current scripts for decoding within and between still/movie conditions
-step3: Regression - Scripts in progress for an encoding based approach
+Step1: Convert to Bids - Convert to Bids Format
+Step2: Preprocess - preprocess the data and save out cleaned files
+Step3: Cut epochs into chunks or small sections for particular analyses
+step4: Decoding - Current scripts for decoding within and between still/movie conditions
+step5: Regression - Scripts in progress for an encoding based approach
 
 ***Testing Scripts***
 Scripts for handling and testing various components of the experiment
