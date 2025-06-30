@@ -4,7 +4,7 @@ import random
 import pandas as pd
 
 localTest = 0
-totalSheets = 2
+totalSheets = 6
 
 local_path = '/Users/montesinossl/desktop/BlenderExp/'
 
@@ -13,15 +13,14 @@ if localTest == 1:
 else:
     stimulus_path = 'C:/Users/meglab/EExperiments/Sebastian/BlenderPilot/'
 # Set your variables
-num_runs = 10  # Specify the number of runs
+num_runs = 30  # Specify the number of runs
 
 catch_percentage = 15  # Specify the percentage of rows to duplicate
-break_freq = 25 #How many trials before a break screen comes up
-jitter_amount = 0  # Specify the jitter amount
+break_freq = 10 #How many trials before a break screen comes up
+jitter_amount = 2  # Specify the jitter amount
 
 # Define conditions and their unique integer codes
-conditions = ['frame_0001', 'frame_0022', 'frame_0045', 'frame_0067', 'frame_0090', 'frame_0112', 'frame_0135', 'frame_0157',
-              'frame_0180', 'frame_0202', 'frame_0225', 'frame_0247', 'frame_0270', 'frame_0292', 'frame_0315', 'frame_0337']
+conditions = ['frame_0001', 'frame_0045', 'frame_0090', 'frame_0135', 'frame_0180', 'frame_0225', 'frame_0270', 'frame_0315']
 anticipated_length = int(num_runs*len(conditions) + (num_runs*len(conditions))*catch_percentage/100)
 anticipated_length = int(num_runs*len(conditions))
 
@@ -75,13 +74,12 @@ for sheet in range(1, totalSheets + 1):
         # Insert the catch trial
         duplicated_row = df.iloc[original_index].copy()
         duplicated_row['Catch'] = 1
-        duplicated_row['Code'] = 17
         df = pd.concat([df.iloc[:original_index + 1], duplicated_row.to_frame().T, df.iloc[original_index + 1:]]).reset_index(drop=True)
 
 
 
     # Specify the output Excel file
-    output_excel_file = os.path.join(local_path, f'megStim{sheet}.xlsx')
+    output_excel_file = os.path.join( f'megStim{sheet}.xlsx')
     print(output_excel_file)
     # Write data to Excel file
     df.to_excel(output_excel_file, index=False)
