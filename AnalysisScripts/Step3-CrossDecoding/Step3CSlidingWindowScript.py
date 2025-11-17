@@ -10,13 +10,13 @@ from sklearn import svm
 from joblib import Parallel, delayed
 
 # Parameters
-bids_dir = '/misc/data12/sjapee/Sebastian-OrientationImagery/Data/Bids'
+bids_dir = 'Users/sm6511/Desktop/NIH_Experiment/Bids'
 data_path = f'{bids_dir}/derivatives/preprocessed/'
-output_dir = '/System/Volumes/Data/misc/data12/sjapee/Sebastian-OrientationImagery/!Important Data/Sliding Window'
+output_dir = '/Users/sm6511/Desktop/Orientation-Imagery/Results/Figure2'
 os.makedirs(output_dir, exist_ok=True)
 subjects = [f"S{i:02}" for i in range(1, 21)] 
 ordered_conditions = ['0001','0022', '0045','0067', '0090', '0112','0135', '0157','0180', '0202','0225','0247','0270', '0292','0315','0337']
-input_numbers = [0, 22,45,67, 90,112, 135,157, 180,202, 225,247, 270, 292,315,337]
+input_numbers = [0, 22, 45, 67, 90, 112, 135, 157, 180, 202, 225, 247, 270, 292, 315, 337]
 movies = [22, 67, 112, 157, 202, 247, 292, 337]
 
 #Average across or pick time points and then test for each time point 
@@ -151,7 +151,7 @@ for Subject in subjects:
     #Get list of conditions to test decoding on
     result_list = [find_contacting_movies_and_samples(i, movies) for i in input_numbers]
     #Set width of window for decoding
-    window_width = 0.03  # 40 ms window 
+    window_width = 0.03  # 30 ms window 
     masterList = []
     '''
     while trainEnd < 0.6:
