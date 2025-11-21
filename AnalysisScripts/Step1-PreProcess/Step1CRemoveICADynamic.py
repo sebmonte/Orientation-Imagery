@@ -2,7 +2,7 @@ import mne, os
 import numpy as np
 import matplotlib
 
-subjects = subjects = [f"S{i:02}" for i in range(4, 5)]
+subjects = subjects = [f"S{i:02}" for i in range(1, 21)]
 for subject in subjects:
     subjid = subject
     bids_top_dir = '/System/Volumes/Data/misc/data12/sjapee/Sebastian-OrientationImagery/Data/Bids/'
